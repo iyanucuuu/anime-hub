@@ -1,0 +1,245 @@
+@if (auth.user(); as user) {
+  <div class="account-page">
+
+    <!-- Banner + perfil -->
+    <div class="profile-banner">
+      <div class="banner-bg">
+        <div class="banner-orb b1"></div>
+        <div class="banner-orb b2"></div>
+      </div>
+      <div class="profile-info">
+        <div class="avatar-wrap">
+          <img [src]="user.photoURL" [alt]="user.displayName || ''" class="avatar" />
+          <span class="avatar-ring"></span>
+        </div>
+        <div class="profile-text">
+          <h1>{{ user.displayName }}</h1>
+          <p class="email">{{ user.email }}</p>
+          <p class="join-date">Miembro desde {{ joinDate }}</p>
+        </div>
+        <button class="btn-logout" (click)="auth.logout()">Cerrar sesión</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-num">{{ favs.favorites().length }}</span>
+          <span class="stat-label">Favoritos</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num">{{ watched.watched().length }}</span>
+          <span class="stat-label">Vistos</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num">{{ watchLater.list().length }}</span>
+          <span class="stat-label">Pendientes</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab" [class.active]="activeTab() === 'semana'" (click)="setTab('semana')">
+        📡 Esta semana
+        @if (airingThisWeek().length > 0) {
+          <span class="tab-badge">{{ airingThisWeek().length }}</span>
+        }
+      </button>
+      <button class="tab" [class.active]="activeTab() === 'favoritos'" (click)="setTab('favoritos')">
+        ⭐ Favoritos
+      </button>
+      <button class="tab" [class.active]="activeTab() === 'vistos'" (click)="setTab('vistos')">
+        👁 Vistos
+      </button>
+      <button class="tab" [class.active]="activeTab() === 'pendientes'" (click)="setTab('pendientes')">
+        🕐 Pendientes
+      </button>
+      <button class="tab" [class.active]="activeTab() === 'actividad'" (click)="setTab('actividad')">
+        📋 Actividad
+      </button>
+    </div>
+
+    <!-- Contenido -->
+    <div class="tab-content">
+
+      <!-- ESTA SEMANA -->
+      @if (activeTab() === 'semana') {
+        @if (airingThisWeek().length === 0) {
+          <div class="empty-tab">
+            <span class="empty-icon">📡</span>
+            <p>Ninguno de tus animes emite esta semana</p>
+            <small style="color:var(--text-muted)">Añade animes en emisión a tus listas para verlos aquí</small>
+          </div>
+        } @else {
+          <div class="week-list">
+            @for (anime of airingThisWeek(); track anime.mal_id) {
+              <a [routerLink]="['/anime', anime.mal_id]" class="week-item">
+                <img [src]="anime.images.jpg.image_url" [alt]="anime.title" class="week-thumb" />
+                <div class="week-info">
+                  <div class="week-top">
+                    <span class="week-title">{{ anime.title }}</span>
+                    <span class="week-source">{{ sourceLabel(anime.source) }}</span>
+                  </div>
+                  @if (anime.broadcast?.string) {
+                    <span class="week-schedule">🗓 {{ anime.broadcast.string }}</span>
+                  }
+                  <span class="week-score">⭐ {{ anime.score }}</span>
+                </div>
+                <span class="air-chip" [style.background]="anime.label.color + '22'" [style.color]="anime.label.color">
+                  {{ anime.label.emoji }} {{ anime.label.text }}
+                </span>
+              </a>
+            }
+          </div>
+        }
+      }
+
+      <!-- FAVORITOS -->
+      @if (activeTab() === 'favoritos') {
+        @if (favs.favorites().length === 0) {
+          <div class="empty-tab">
+            <span class="empty-icon">🎌</span>
+            <p>Aún no tienes favoritos</p>
+            <a routerLink="/home" class="btn-primary">Explorar anime</a>
+          </div>
+        } @else {
+          <div class="favs-grid">
+            @for (anime of favs.favorites(); track anime.mal_id) {
+              <a [routerLink]="['/anime', anime.mal_id]" class="fav-card">
+                <img [src]="anime.images.jpg.image_url" [alt]="anime.title" />
+                <div class="fav-info">
+                  <span class="fav-title">{{ anime.title }}</span>
+                  <span class="fav-score">⭐ {{ anime.score }}</span>
+                </div>
+              </a>
+            }
+          </div>
+        }
+      }
+
+      <!-- VISTOS -->
+      @if (activeTab() === 'vistos') {
+        <div class="watched-header">
+          <p class="watched-count">
+            {{ watched.watched().length }} anime{{ watched.watched().length !== 1 ? 's' : '' }} vistos
+          </p>
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input
+              type="text"
+              placeholder="Buscar en mis vistos..."
+              class="search-input"
+              [ngModel]="searchQuery()"
+              (ngModelChange)="searchQuery.set($event)"
+            />
+          </div>
+        </div>
+
+        @if (watched.watched().length === 0) {
+          <div class="empty-tab">
+            <span class="empty-icon">👁</span>
+            <p>Aún no has marcado ningún anime como visto</p>
+            <a routerLink="/home" class="btn-primary">Explorar anime</a>
+          </div>
+        } @else if (filteredWatched().length === 0) {
+          <div class="empty-tab">
+            <span class="empty-icon">🔍</span>
+            <p>No se encontró ningún anime con "{{ searchQuery() }}"</p>
+          </div>
+        } @else {
+          <div class="watched-list">
+            @for (anime of filteredWatched(); track anime.mal_id) {
+              <a [routerLink]="['/anime', anime.mal_id]" class="watched-item">
+                <img [src]="anime.images.jpg.image_url" [alt]="anime.title" class="watched-thumb" />
+                <div class="watched-info">
+                  <span class="watched-title">{{ anime.title }}</span>
+                  <span class="watched-score">⭐ {{ anime.score }}</span>
+                </div>
+                <span class="watched-date">{{ formatDate(anime.watchedAt) }}</span>
+                <span class="watched-badge">✅ Visto</span>
+              </a>
+            }
+          </div>
+        }
+      }
+
+      <!-- PENDIENTES -->
+      @if (activeTab() === 'pendientes') {
+        <div class="watched-header">
+          <p class="watched-count">
+            {{ watchLater.list().length }} anime{{ watchLater.list().length !== 1 ? 's' : '' }} pendientes
+          </p>
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input
+              type="text"
+              placeholder="Buscar en pendientes..."
+              class="search-input"
+              [ngModel]="searchQuery()"
+              (ngModelChange)="searchQuery.set($event)"
+            />
+          </div>
+        </div>
+
+        @if (watchLater.list().length === 0) {
+          <div class="empty-tab">
+            <span class="empty-icon">🕐</span>
+            <p>No tienes animes pendientes</p>
+            <a routerLink="/home" class="btn-primary">Explorar anime</a>
+          </div>
+        } @else if (filteredPending().length === 0) {
+          <div class="empty-tab">
+            <span class="empty-icon">🔍</span>
+            <p>No se encontró ningún anime con "{{ searchQuery() }}"</p>
+          </div>
+        } @else {
+          <div class="watched-list">
+            @for (anime of filteredPending(); track anime.mal_id) {
+              <a [routerLink]="['/anime', anime.mal_id]" class="watched-item">
+                <img [src]="anime.images.jpg.image_url" [alt]="anime.title" class="watched-thumb" />
+                <div class="watched-info">
+                  <span class="watched-title">{{ anime.title }}</span>
+                  <span class="watched-score">⭐ {{ anime.score }}</span>
+                </div>
+                <span class="watched-date">{{ formatDate(anime.addedAt) }}</span>
+                <span class="pending-badge">🕐 Pendiente</span>
+              </a>
+            }
+          </div>
+        }
+      }
+
+      <!-- ACTIVIDAD -->
+      @if (activeTab() === 'actividad') {
+        <div class="empty-tab">
+          <span class="empty-icon">🚀</span>
+          <p>Las recomendaciones sociales están en camino</p>
+          <span class="badge-soon">Próximamente</span>
+        </div>
+      }
+
+    </div>
+  </div>
+
+} @else {
+
+  <div class="login-wall">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="bubble">
+      <span class="bubble-icon">⛩</span>
+      <h2>Únete a la comunidad</h2>
+      <p>Inicia sesión para acceder a tus favoritos, ver recomendaciones de otros usuarios y participar en la comunidad.</p>
+      <ul class="features">
+        <li><span>⭐</span> Guarda tus animes favoritos</li>
+        <li><span>👁</span> Lleva el control de lo que has visto</li>
+        <li><span>💬</span> Comparte recomendaciones</li>
+        <li><span>🤖</span> Recibe recomendaciones con IA <span class="badge">Próximamente</span></li>
+      </ul>
+      <button class="btn-google" (click)="auth.loginWithGoogle()">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="22" />
+        Entrar con Google
+      </button>
+    </div>
+  </div>
+
+}

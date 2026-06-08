@@ -1,0 +1,90 @@
+@if (loading()) {
+  <app-skeleton-detail />
+} @else if (error()) {
+  <div class="error-state">
+    <span class="error-icon">⚠️</span>
+    <p>{{ error() }}</p>
+    <button class="btn btn-outline" (click)="goBack()">← Volver</button>
+  </div>
+} @else if (anime()) {
+  <button class="btn btn-outline back-btn" (click)="goBack()">← Volver</button>
+
+  <div class="detail-header">
+    <img [src]="anime()!.images?.jpg?.large_image_url" [alt]="anime()!.title" class="cover" />
+    <div class="detail-info">
+      <h1 class="detail-title">{{ anime()!.title }}</h1>
+      @if (anime()!.title_english && anime()!.title_english !== anime()!.title) {
+        <p class="detail-subtitle">{{ anime()!.title_english }}</p>
+      }
+
+      @if (airLabel) {
+        <div class="air-badge" [style.color]="airLabel.color" [style.border-color]="airLabel.color">
+          {{ airLabel.emoji }} Emite {{ airLabel.text }}
+          @if (anime()!.broadcast?.string) {
+            · {{ anime()!.broadcast?.string }}
+          }
+        </div>
+      }
+
+      <div class="badges">
+        @if (anime()!.score) { <span class="badge">⭐ {{ anime()!.score }}</span> }
+        @if (anime()!.rank)  { <span class="badge"># {{ anime()!.rank }} ranking</span> }
+        @if (anime()!.episodes) { <span class="badge">{{ anime()!.episodes }} eps</span> }
+        @if (anime()!.status) { <span class="badge">{{ anime()!.status }}</span> }
+      </div>
+
+      <div class="genres">
+        @for (g of anime()!.genres; track g.mal_id) {
+          <span class="genre-tag">{{ g.name }}</span>
+        }
+      </div>
+
+      <p class="synopsis">{{ anime()!.synopsis }}</p>
+
+      <div class="stream-links">
+        <a [href]="'https://www.crunchyroll.com/search?q=' + anime()!.title" target="_blank" rel="noopener noreferrer" class="stream-btn crunchyroll">
+          <img src="https://www.crunchyroll.com/favicons/favicon-32x32.png" width="16" alt="CR" />
+          Ver en Crunchyroll
+        </a>
+        <a [href]="'https://myanimelist.net/anime/' + anime()!.mal_id" target="_blank" rel="noopener noreferrer" class="stream-btn mal">
+          <img src="https://myanimelist.net/favicon.ico" width="16" alt="MAL" />
+          MyAnimeList
+        </a>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn"
+          [class.btn-primary]="!favoritesService.isFavorite(anime()!.mal_id)"
+          [class.btn-outline]="favoritesService.isFavorite(anime()!.mal_id)"
+          (click)="toggleFavorite()">
+          {{ favoritesService.isFavorite(anime()!.mal_id) ? '❤️ En favoritos' : '🤍 Añadir a favoritos' }}
+        </button>
+        <button class="btn"
+          [class.btn-watched]="watchedService.isWatched(anime()!.mal_id)"
+          [class.btn-outline]="!watchedService.isWatched(anime()!.mal_id)"
+          (click)="toggleWatched()">
+          {{ watchedService.isWatched(anime()!.mal_id) ? '✅ Visto' : '👁 Marcar como visto' }}
+        </button>
+        <button class="btn"
+          [class.btn-watchlater]="watchLaterService.isInList(anime()!.mal_id)"
+          [class.btn-outline]="!watchLaterService.isInList(anime()!.mal_id)"
+          (click)="toggleWatchLater()">
+          {{ watchLaterService.isInList(anime()!.mal_id) ? '🔖 En pendientes' : '🕐 Ver más tarde' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (characters().length > 0) {
+    <h2 class="section-title">Personajes</h2>
+    <div class="characters-grid">
+      @for (c of characters(); track c.character.mal_id) {
+        <div class="char-card">
+          <img [src]="c.character.images?.jpg?.image_url" [alt]="c.character.name" loading="lazy" />
+          <p class="char-name">{{ c.character.name }}</p>
+          <p class="char-role">{{ c.role }}</p>
+        </div>
+      }
+    </div>
+  }
+}

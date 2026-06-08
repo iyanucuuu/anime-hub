@@ -1,0 +1,34 @@
+<section class="hero">
+  <h1>Descubre tu próximo anime</h1>
+  <p>Busca, explora rankings y guarda tus favoritos</p>
+  <form class="search-bar" (ngSubmit)="search()">
+    <input
+      type="text"
+      [(ngModel)]="query"
+      name="query"
+      placeholder="Buscar anime..."
+      autocomplete="off"
+    />
+    <button type="submit" class="btn btn-primary">Buscar</button>
+  </form>
+</section>
+
+<section>
+  <h2 class="page-title">Temporada actual</h2>
+
+  @if (loading()) {
+    <app-skeleton-card [count]="12" />
+  } @else if (error()) {
+    <div class="error-state">
+      <span class="error-icon">⚠️</span>
+      <p>{{ error() }}</p>
+      <button class="btn btn-outline" (click)="retry()">Reintentar</button>
+    </div>
+  } @else {
+    <div class="anime-grid">
+      @for (anime of seasonal(); track anime.mal_id) {
+        <app-anime-card [anime]="anime" (clicked)="goToAnime($event)" />
+      }
+    </div>
+  }
+</section>

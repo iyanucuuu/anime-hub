@@ -1,0 +1,8 @@
+@if (showNav()) {
+  <app-navbar />
+  <main class="main-content">
+    <router-outlet />
+  </main>
+} @else {
+  <router-outlet />
+}

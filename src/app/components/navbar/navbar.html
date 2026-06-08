@@ -1,0 +1,26 @@
+<nav class="navbar">
+  <a routerLink="/" class="brand">
+    <span>⛩</span>
+    <span>AnimeHub</span>
+  </a>
+  <div class="nav-links">
+    <a routerLink="/home" routerLinkActive="active">Inicio</a>
+    <a routerLink="/search" routerLinkActive="active">Buscar</a>
+    <a routerLink="/rankings" routerLinkActive="active">Rankings</a>
+    <a routerLink="/favorites" routerLinkActive="active">Favoritos</a>
+    <a routerLink="/account" routerLinkActive="active">Cuenta</a>
+  </div>
+
+  @if (auth.user(); as user) {
+    <div class="user-menu">
+      <img [src]="user.photoURL" [alt]="user.displayName || ''" class="avatar" />
+      <span class="username">{{ user.displayName }}</span>
+      <button class="btn-logout" (click)="auth.logout()">Salir</button>
+    </div>
+  } @else {
+    <button class="btn-login" (click)="auth.loginWithGoogle()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" />
+      Entrar con Google
+    </button>
+  }
+</nav>

@@ -1,0 +1,15 @@
+<h2 class="page-title">Mis Favoritos</h2>
+
+@if (favoritesService.favorites().length === 0) {
+  <div class="empty-state">
+    <span class="empty-icon">❤️</span>
+    <p>Aún no tienes favoritos guardados</p>
+    <p>Entra en la ficha de un anime y pulsa el corazón</p>
+  </div>
+} @else {
+  <div class="anime-grid">
+    @for (anime of favoritesService.favorites(); track anime.mal_id) {
+      <app-anime-card [anime]="anime" (clicked)="goToAnime($event)" />
+    }
+  </div>
+}

@@ -1,0 +1,44 @@
+<h2 class="page-title">Buscar</h2>
+
+<form class="search-bar" (ngSubmit)="search()">
+  <input
+    type="text"
+    [(ngModel)]="query"
+    name="query"
+    placeholder="Buscar anime..."
+    autocomplete="off"
+  />
+  <button type="submit" class="btn btn-primary">Buscar</button>
+</form>
+
+<div class="type-toggle">
+  <button class="type-btn" [class.active]="activeType() === 'tv'" (click)="selectType('tv')">
+    📺 Series
+  </button>
+  <button class="type-btn" [class.active]="activeType() === 'movie'" (click)="selectType('movie')">
+    🎬 Películas
+  </button>
+  <button class="type-btn" [class.active]="activeType() === 'all'" (click)="selectType('all')">
+    🗂 Todo
+  </button>
+</div>
+
+@if (loading()) {
+  <app-skeleton-card [count]="8" />
+} @else if (error()) {
+  <div class="error-state">
+    <span class="error-icon">⚠️</span>
+    <p>{{ error() }}</p>
+  </div>
+} @else if (searched() && results().length === 0) {
+  <div class="empty-state">
+    <span class="empty-icon">🔍</span>
+    <p>No se encontraron resultados para "{{ query }}"</p>
+  </div>
+} @else {
+  <div class="anime-grid">
+    @for (anime of results(); track anime.mal_id) {
+      <app-anime-card [anime]="anime" (clicked)="goToAnime($event)" />
+    }
+  </div>
+}

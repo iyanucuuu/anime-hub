@@ -1,0 +1,34 @@
+<div class="landing">
+  <div class="orbs">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+
+  <div class="particles">
+    @for (p of particles; track $index) {
+      <span class="particle" [style]="p"></span>
+    }
+  </div>
+
+  <div class="content">
+    <div class="logo-wrap">
+      <span class="torii">⛩</span>
+    </div>
+    <h1 class="title">
+      <span class="word">Anime</span><span class="word accent">Hub</span>
+    </h1>
+    <p class="subtitle">Descubre, guarda y comparte tu mundo del anime</p>
+
+    <button class="btn-enter" (click)="enter()">
+      <span class="btn-text">Entrar</span>
+      <span class="btn-arrow">→</span>
+    </button>
+  </div>
+
+  <div class="floating-tags">
+    @for (t of styledTags; track t.label) {
+      <span class="tag" [style]="t.style">{{ t.label }}</span>
+    }
+  </div>
+</div>

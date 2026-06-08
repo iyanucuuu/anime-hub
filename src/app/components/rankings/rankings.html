@@ -1,0 +1,42 @@
+<h2 class="page-title">{{ pageTitle }}</h2>
+
+<!-- TV / Película toggle -->
+<div class="type-toggle">
+  <button class="type-btn" [class.active]="activeType() === 'tv'" (click)="selectType('tv')">
+    📺 Series
+  </button>
+  <button class="type-btn" [class.active]="activeType() === 'movie'" (click)="selectType('movie')">
+    🎬 Películas
+  </button>
+</div>
+
+<!-- Géneros -->
+<div class="genre-filters">
+  <button class="genre-chip" [class.active]="activeGenre() === null" (click)="selectGenre(null)">
+    🏆 Todo
+  </button>
+  @for (g of genres; track g.id) {
+    <button class="genre-chip" [class.active]="activeGenre() === g.id" (click)="selectGenre(g.id)">
+      {{ g.name }}
+    </button>
+  }
+</div>
+
+@if (loading()) {
+  <app-skeleton-card [count]="12" />
+} @else if (error()) {
+  <div class="error-state">
+    <span class="error-icon">⚠️</span>
+    <p>{{ error() }}</p>
+    <button class="btn btn-outline" (click)="loadTop()">Reintentar</button>
+  </div>
+} @else {
+  <div class="anime-grid">
+    @for (anime of topAnime(); track anime.mal_id; let i = $index) {
+      <div class="rank-wrapper">
+        <span class="rank-badge">#{{ i + 1 }}</span>
+        <app-anime-card [anime]="anime" (clicked)="goToAnime($event)" />
+      </div>
+    }
+  </div>
+}

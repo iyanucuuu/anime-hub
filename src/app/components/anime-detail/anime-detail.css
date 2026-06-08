@@ -1,0 +1,174 @@
+.back-btn { margin-bottom: 1.5rem; }
+
+.air-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .85rem;
+  font-weight: 700;
+  border: 1px solid;
+  border-radius: 20px;
+  padding: .3rem .9rem;
+  margin-bottom: .75rem;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.stream-links {
+  display: flex;
+  gap: .6rem;
+  flex-wrap: wrap;
+  margin-bottom: .75rem;
+}
+
+.stream-btn {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .45rem 1rem;
+  border-radius: 8px;
+  font-size: .85rem;
+  font-weight: 600;
+  transition: opacity .2s, transform .15s;
+  border: 1px solid transparent;
+}
+
+.stream-btn:hover {
+  opacity: .85;
+  transform: translateY(-1px);
+}
+
+.stream-btn.crunchyroll {
+  background: #f47521;
+  color: #fff;
+}
+
+.stream-btn.mal {
+  background: #2e51a2;
+  color: #fff;
+}
+
+.action-buttons {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+
+.btn-watched {
+  background: linear-gradient(135deg, #00c853, #00897b);
+  color: #fff;
+  border: none;
+}
+
+.btn-watchlater {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: #fff;
+  border: none;
+}
+
+.detail-header {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.cover {
+  width: 220px;
+  min-width: 220px;
+  border-radius: var(--radius);
+  object-fit: cover;
+  align-self: flex-start;
+}
+
+.detail-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: .25rem;
+}
+
+.detail-subtitle {
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+
+.badge {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: .3rem .75rem;
+  border-radius: 20px;
+  font-size: .8rem;
+  color: var(--accent);
+}
+
+.genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: 1.25rem;
+}
+
+.genre-tag {
+  background: color-mix(in srgb, var(--accent2) 15%, transparent);
+  color: var(--accent2);
+  padding: .25rem .65rem;
+  border-radius: 20px;
+  font-size: .78rem;
+  font-weight: 600;
+}
+
+.synopsis {
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  max-width: 660px;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+.characters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 1rem;
+}
+
+.char-card {
+  text-align: center;
+}
+
+.char-card img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  margin-bottom: .4rem;
+}
+
+.char-name {
+  font-size: .78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.char-role {
+  font-size: .7rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 600px) {
+  .detail-header { flex-direction: column; }
+  .cover { width: 100%; min-width: unset; max-height: 320px; }
+}

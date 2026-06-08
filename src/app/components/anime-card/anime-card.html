@@ -1,0 +1,7 @@
+<div class="anime-card" (click)="clicked.emit(anime.mal_id)">
+  <img [src]="anime.images?.jpg?.image_url" [alt]="anime.title" loading="lazy" />
+  <div class="card-info">
+    <p class="card-title" [title]="anime.title_english || anime.title">{{ anime.title_english || anime.title }}</p>
+    <p class="card-score">⭐ {{ anime.score ?? 'N/A' }}</p>
+  </div>
+</div>
