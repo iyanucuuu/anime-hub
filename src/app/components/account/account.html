@@ -9,15 +9,38 @@
       </div>
       <div class="profile-info">
         <div class="avatar-wrap">
-          <img [src]="user.photoURL" [alt]="user.displayName || ''" class="avatar" />
+          <img
+            [src]="user.photoURL || avatarFallback(user.displayName)"
+            [alt]="user.displayName || ''"
+            class="avatar"
+            referrerpolicy="no-referrer"
+            (error)="onAvatarError($event, user.displayName)"
+          />
           <span class="avatar-ring"></span>
         </div>
         <div class="profile-text">
           <h1>{{ user.displayName }}</h1>
           <p class="email">{{ user.email }}</p>
           <p class="join-date">Miembro desde {{ joinDate }}</p>
+          @if (extendedProfile()?.bio) {
+            <p class="profile-bio">{{ extendedProfile()!.bio }}</p>
+          }
+          <div class="profile-tags">
+            @if (extendedProfile()?.country) {
+              <span class="profile-tag">🌍 {{ extendedProfile()!.country }}</span>
+            }
+            @if (extendedProfile()?.favoriteAnime) {
+              <span class="profile-tag">⭐ {{ extendedProfile()!.favoriteAnime }}</span>
+            }
+            @if (extendedProfile()?.favoriteGenre) {
+              <span class="profile-tag">🎭 {{ extendedProfile()!.favoriteGenre }}</span>
+            }
+          </div>
         </div>
-        <button class="btn-logout" (click)="auth.logout()">Cerrar sesión</button>
+        <div class="profile-actions">
+          <button class="btn btn-outline btn-sm" (click)="openEditProfile()">Editar perfil</button>
+          <button class="btn-logout" (click)="auth.logout()">Cerrar sesión</button>
+        </div>
       </div>
 
       <div class="stats-row">
@@ -33,29 +56,31 @@
           <span class="stat-num">{{ watchLater.list().length }}</span>
           <span class="stat-label">Pendientes</span>
         </div>
+        <div class="stat-card">
+          <span class="stat-num">{{ watching.watching().length }}</span>
+          <span class="stat-label">Viendo</span>
+        </div>
       </div>
     </div>
 
     <!-- Tabs -->
     <div class="tabs">
       <button class="tab" [class.active]="activeTab() === 'semana'" (click)="setTab('semana')">
-        📡 Esta semana
+        Esta semana
         @if (airingThisWeek().length > 0) {
           <span class="tab-badge">{{ airingThisWeek().length }}</span>
         }
       </button>
-      <button class="tab" [class.active]="activeTab() === 'favoritos'" (click)="setTab('favoritos')">
-        ⭐ Favoritos
+      <button class="tab" [class.active]="activeTab() === 'favoritos'" (click)="setTab('favoritos')">Favoritos</button>
+      <button class="tab" [class.active]="activeTab() === 'vistos'" (click)="setTab('vistos')">Vistos</button>
+      <button class="tab" [class.active]="activeTab() === 'pendientes'" (click)="setTab('pendientes')">Pendientes</button>
+      <button class="tab" [class.active]="activeTab() === 'viendo'" (click)="setTab('viendo')">
+        En curso
+        @if (watching.watching().length > 0) {
+          <span class="tab-badge">{{ watching.watching().length }}</span>
+        }
       </button>
-      <button class="tab" [class.active]="activeTab() === 'vistos'" (click)="setTab('vistos')">
-        👁 Vistos
-      </button>
-      <button class="tab" [class.active]="activeTab() === 'pendientes'" (click)="setTab('pendientes')">
-        🕐 Pendientes
-      </button>
-      <button class="tab" [class.active]="activeTab() === 'actividad'" (click)="setTab('actividad')">
-        📋 Actividad
-      </button>
+      <button class="tab" [class.active]="activeTab() === 'actividad'" (click)="setTab('actividad')">Actividad</button>
     </div>
 
     <!-- Contenido -->
@@ -79,8 +104,8 @@
                     <span class="week-title">{{ anime.title }}</span>
                     <span class="week-source">{{ sourceLabel(anime.source) }}</span>
                   </div>
-                  @if (anime.broadcast?.string) {
-                    <span class="week-schedule">🗓 {{ anime.broadcast.string }}</span>
+                  @if (anime.broadcast?.string; as schedule) {
+                    <span class="week-schedule">🗓 {{ schedule }}</span>
                   }
                   <span class="week-score">⭐ {{ anime.score }}</span>
                 </div>
@@ -208,17 +233,196 @@
         }
       }
 
-      <!-- ACTIVIDAD -->
+      <!-- VIENDO -->
+      @if (activeTab() === 'viendo') {
+        <div class="watched-header">
+          <p class="watched-count">
+            {{ watching.watching().length }} anime{{ watching.watching().length !== 1 ? 's' : '' }} en curso
+          </p>
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input
+              type="text"
+              placeholder="Buscar en lo que estás viendo..."
+              class="search-input"
+              [ngModel]="searchQuery()"
+              (ngModelChange)="searchQuery.set($event)"
+            />
+          </div>
+        </div>
+
+        @if (watching.watching().length === 0) {
+          <div class="empty-tab">
+            <span class="empty-icon">▶️</span>
+            <p>Aún no estás siguiendo el progreso de ningún anime</p>
+            <a routerLink="/home" class="btn-primary">Explorar anime</a>
+          </div>
+        } @else if (filteredWatching().length === 0) {
+          <div class="empty-tab">
+            <span class="empty-icon">🔍</span>
+            <p>No se encontró ningún anime con "{{ searchQuery() }}"</p>
+          </div>
+        } @else {
+          <div class="watched-list">
+            @for (anime of filteredWatching(); track anime.mal_id) {
+              <div class="watched-item watching-row">
+                <a [routerLink]="['/anime', anime.mal_id]" class="watching-cover-link">
+                  <img [src]="anime.images.jpg.image_url" [alt]="anime.title" class="watched-thumb" />
+                </a>
+                <div class="watched-info">
+                  <a [routerLink]="['/anime', anime.mal_id]" class="watched-title">{{ anime.title }}</a>
+                  <span class="watched-score">
+                    Episodio {{ anime.progress }}{{ anime.episodes ? ' / ' + anime.episodes : '' }}
+                  </span>
+                  @if (anime.episodes) {
+                    <div class="mini-progress-bar">
+                      <div class="mini-progress-fill" [style.width.%]="progressPercent(anime.progress, anime.episodes)"></div>
+                    </div>
+                  }
+                </div>
+                <div class="watching-stepper">
+                  <button class="step-btn" (click)="adjustProgress(anime, -1)" [disabled]="anime.progress <= 0">−</button>
+                  <span class="step-count">{{ anime.progress }}</span>
+                  <button class="step-btn" (click)="adjustProgress(anime, 1)" [disabled]="!!anime.episodes && anime.progress >= anime.episodes">+</button>
+                </div>
+                <span class="watching-badge">▶️ Viendo</span>
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <!-- ACTIVIDAD / SOCIAL -->
       @if (activeTab() === 'actividad') {
-        <div class="empty-tab">
-          <span class="empty-icon">🚀</span>
-          <p>Las recomendaciones sociales están en camino</p>
-          <span class="badge-soon">Próximamente</span>
+        <div class="social-layout">
+
+          <!-- Mi actividad -->
+          <div class="social-col">
+            <h3 class="social-col-title">Mi actividad</h3>
+            @if (activity().length === 0) {
+              <div class="empty-tab">
+                <span class="empty-icon">📋</span>
+                <p>Todavía no hay actividad</p>
+                <small style="color:var(--text-muted)">Añade animes a tus listas y aquí irá apareciendo tu historial</small>
+              </div>
+            } @else {
+              <div class="activity-feed">
+                @for (entry of activity(); track entry.mal_id + '-' + entry.kind + '-' + entry.timestamp) {
+                  <a [routerLink]="['/anime', entry.mal_id]" class="activity-item">
+                    <img [src]="entry.images.jpg.image_url" [alt]="entry.title" class="activity-thumb" />
+                    <div class="activity-info">
+                      <span class="activity-text">
+                        <span class="activity-icon">{{ activityIcon(entry.kind) }}</span>
+                        <strong>{{ entry.title }}</strong> — {{ activityText(entry) }}
+                      </span>
+                      <span class="activity-time">{{ relativeTime(entry.timestamp) }}</span>
+                    </div>
+                  </a>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Reseñas de la comunidad -->
+          <div class="social-col">
+            <h3 class="social-col-title">Reseñas recientes</h3>
+            @if (reviews.communityFeed().length === 0) {
+              <div class="empty-tab">
+                <span class="empty-icon">💬</span>
+                <p>Aún no hay reseñas de la comunidad</p>
+                <small style="color:var(--text-muted)">Entra en la ficha de un anime y escribe la primera</small>
+              </div>
+            } @else {
+              <div class="community-reviews">
+                @for (r of reviews.communityFeed(); track r.id) {
+                  <div class="community-review-card">
+                    <div class="cr-top">
+                      <img
+                        [src]="r.photoURL || avatarFallback(r.displayName)"
+                        [alt]="r.displayName"
+                        class="cr-avatar"
+                        referrerpolicy="no-referrer"
+                        (error)="onAvatarError($event, r.displayName)"
+                      />
+                      <div class="cr-meta">
+                        <span class="cr-author">{{ r.displayName }}</span>
+                        <span class="cr-date">{{ r.updatedAt | date:'dd MMM yyyy' }}</span>
+                      </div>
+                      <span class="cr-score">★ {{ r.rating }}/10</span>
+                    </div>
+                    <a [routerLink]="['/anime', r.mal_id]" class="cr-anime-row">
+                      <img [src]="r.animeImage" [alt]="r.animeTitle" class="cr-anime-thumb" />
+                      <span class="cr-anime-title">{{ r.animeTitle }}</span>
+                    </a>
+                    <p class="cr-text">{{ r.text }}</p>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
         </div>
       }
 
     </div>
   </div>
+
+  <!-- ── Modal: Editar perfil ─────────────────────────────────────────────── -->
+  @if (showEditProfile()) {
+    <div class="modal-backdrop" (click)="showEditProfile.set(false)">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2 class="modal-title">Editar perfil</h2>
+          <button class="btn btn-ghost btn-icon" (click)="showEditProfile.set(false)">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <label class="field-label">Biografía</label>
+          <textarea
+            class="field-input field-textarea"
+            placeholder="Cuéntanos algo sobre ti..."
+            rows="3"
+            [ngModel]="editBio()"
+            (ngModelChange)="editBio.set($event)"
+          ></textarea>
+
+          <label class="field-label">País</label>
+          <input
+            type="text"
+            class="field-input"
+            placeholder="España, México, Argentina..."
+            [ngModel]="editCountry()"
+            (ngModelChange)="editCountry.set($event)"
+          />
+
+          <label class="field-label">Anime favorito</label>
+          <input
+            type="text"
+            class="field-input"
+            placeholder="Attack on Titan, Naruto, One Piece..."
+            [ngModel]="editFavoriteAnime()"
+            (ngModelChange)="editFavoriteAnime.set($event)"
+          />
+
+          <label class="field-label">Género favorito</label>
+          <input
+            type="text"
+            class="field-input"
+            placeholder="Shonen, Isekai, Slice of Life..."
+            [ngModel]="editFavoriteGenre()"
+            (ngModelChange)="editFavoriteGenre.set($event)"
+          />
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-primary" (click)="saveProfile()" [disabled]="editSaving()">
+            {{ editSaving() ? 'Guardando…' : 'Guardar cambios' }}
+          </button>
+          <button class="btn btn-outline" (click)="showEditProfile.set(false)">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  }
 
 } @else {
 

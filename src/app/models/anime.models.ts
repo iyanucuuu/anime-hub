@@ -124,6 +124,7 @@ export interface AnimeUserPayload {
   title: string;
   images: AnimeImages;
   score: number | null;
-  status?: string;
+  status: string;
   broadcast?: BroadcastInfo;
+  episodes?: number | null;
 }

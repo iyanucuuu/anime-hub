@@ -1,14 +1,27 @@
-import { Component, signal, computed } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, signal, computed, effect, inject } from '@angular/core';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { DatePipe } from '@angular/common';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
 import { AuthService } from '../../services/auth';
 import { FavoritesService } from '../../services/favorites';
 import { WatchedService } from '../../services/watched';
 import { WatchLaterService } from '../../services/watchlater';
+import { WatchingService, WatchingAnime } from '../../services/watching';
+import { ReviewsService } from '../../services/reviews';
+import { FriendsService } from '../../services/friends';
 import { getAirStatus, airStatusLabel, AirStatus, BroadcastInfo } from '../../services/broadcast';
-import { AnimeUserPayload } from '../../models/anime.models';
+import { AnimeUserPayload, AnimeImages } from '../../models/anime.models';
 
-type Tab = 'semana' | 'favoritos' | 'vistos' | 'pendientes' | 'actividad';
+export interface ExtendedProfile {
+  bio: string;
+  country: string;
+  favoriteAnime: string;
+  favoriteGenre: string;
+}
+
+type Tab = 'semana' | 'favoritos' | 'vistos' | 'pendientes' | 'viendo' | 'actividad';
 
 interface AiringAnime extends AnimeUserPayload {
   status: AirStatus;
@@ -17,9 +30,20 @@ interface AiringAnime extends AnimeUserPayload {
   source: 'favorito' | 'visto' | 'pendiente';
 }
 
+type ActivityKind = 'favorito' | 'visto' | 'pendiente' | 'viendo';
+
+interface ActivityEntry {
+  mal_id: number;
+  title: string;
+  images: AnimeImages;
+  kind: ActivityKind;
+  timestamp: number;
+  detail?: string;
+}
+
 @Component({
   selector: 'app-account',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, DatePipe],
   templateUrl: './account.html',
   styleUrl: './account.css',
 })
@@ -61,12 +85,129 @@ export class Account {
     return this.watchLater.list().filter(a => a.title.toLowerCase().includes(q));
   });
 
+  filteredWatching = computed(() => {
+    const q = this.searchQuery().toLowerCase().trim();
+    if (!q) return this.watching.watching();
+    return this.watching.watching().filter(a => a.title.toLowerCase().includes(q));
+  });
+
+  /**
+   * Línea de tiempo de actividad: une los movimientos en tus listas (favoritos, vistos,
+   * pendientes y progreso de lo que estás viendo) en un único feed cronológico.
+   */
+  activity = computed<ActivityEntry[]>(() => {
+    const entries: ActivityEntry[] = [];
+
+    for (const a of this.favs.favorites()) {
+      entries.push({
+        mal_id: a.mal_id, title: a.title, images: a.images,
+        kind: 'favorito', timestamp: a.addedAt ?? 0,
+      });
+    }
+    for (const a of this.watched.watched()) {
+      entries.push({
+        mal_id: a.mal_id, title: a.title, images: a.images,
+        kind: 'visto', timestamp: a.watchedAt ?? 0,
+      });
+    }
+    for (const a of this.watchLater.list()) {
+      entries.push({
+        mal_id: a.mal_id, title: a.title, images: a.images,
+        kind: 'pendiente', timestamp: a.addedAt ?? 0,
+      });
+    }
+    for (const a of this.watching.watching()) {
+      entries.push({
+        mal_id: a.mal_id, title: a.title, images: a.images,
+        kind: 'viendo', timestamp: a.updatedAt ?? 0,
+        detail: `Episodio ${a.progress}${a.episodes ? ' / ' + a.episodes : ''}`,
+      });
+    }
+
+    return entries
+      .filter(e => e.timestamp > 0)
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 40);
+  });
+
+  // ─── Editar perfil ────────────────────────────────────────────────────────
+  showEditProfile = signal(false);
+  editBio = signal('');
+  editCountry = signal('');
+  editFavoriteAnime = signal('');
+  editFavoriteGenre = signal('');
+  editSaving = signal(false);
+  /** Perfil extendido cargado desde Firestore */
+  extendedProfile = signal<ExtendedProfile | null>(null);
+
+  openEditProfile() {
+    // Mostrar el modal inmediatamente con los datos cacheados
+    const cached = this.extendedProfile();
+    this.editBio.set(cached?.bio ?? '');
+    this.editCountry.set(cached?.country ?? '');
+    this.editFavoriteAnime.set(cached?.favoriteAnime ?? '');
+    this.editFavoriteGenre.set(cached?.favoriteGenre ?? '');
+    this.showEditProfile.set(true);
+  }
+
+  async saveProfile() {
+    const uid = this.auth.user()?.uid;
+    if (!uid || this.editSaving()) return;
+    this.editSaving.set(true);
+    await setDoc(doc(db, 'users', uid), {
+      bio: this.editBio().trim(),
+      country: this.editCountry().trim(),
+      favoriteAnime: this.editFavoriteAnime().trim(),
+      favoriteGenre: this.editFavoriteGenre().trim(),
+    }, { merge: true });
+    this.extendedProfile.set({
+      bio: this.editBio().trim(),
+      country: this.editCountry().trim(),
+      favoriteAnime: this.editFavoriteAnime().trim(),
+      favoriteGenre: this.editFavoriteGenre().trim(),
+    });
+    this.editSaving.set(false);
+    this.showEditProfile.set(false);
+  }
+
+  async loadExtendedProfile() {
+    const uid = this.auth.user()?.uid;
+    if (!uid) return;
+    const snap = await getDoc(doc(db, 'users', uid));
+    const data = snap.data() as any;
+    if (data) {
+      this.extendedProfile.set({
+        bio: data.bio ?? '',
+        country: data.country ?? '',
+        favoriteAnime: data.favoriteAnime ?? '',
+        favoriteGenre: data.favoriteGenre ?? '',
+      });
+    }
+  }
+
+  private route = inject(ActivatedRoute);
+
   constructor(
     public auth: AuthService,
     public favs: FavoritesService,
     public watched: WatchedService,
-    public watchLater: WatchLaterService
-  ) {}
+    public watchLater: WatchLaterService,
+    public watching: WatchingService,
+    public reviews: ReviewsService,
+    public friends: FriendsService,
+  ) {
+    // Carga el perfil extendido cada vez que el usuario inicia sesión
+    effect(() => {
+      if (this.auth.user()) this.loadExtendedProfile();
+    });
+
+    // Activa la pestaña correcta si viene con ?tab=amigos desde el navbar
+    this.route.queryParams.subscribe(params => {
+      if (params['tab'] && ['semana','amigos','favoritos','vistos','pendientes','viendo','actividad'].includes(params['tab'])) {
+        this.activeTab.set(params['tab'] as Tab);
+      }
+    });
+  }
 
   setTab(tab: Tab) {
     this.activeTab.set(tab);
@@ -76,7 +217,7 @@ export class Account {
   get bestScore(): string {
     const favs = this.favs.favorites();
     if (!favs.length) return '—';
-    return Math.max(...favs.map(f => f.score)).toFixed(1);
+    return Math.max(...favs.map(f => f.score ?? 0)).toFixed(1);
   }
 
   get joinDate(): string {
@@ -93,5 +234,66 @@ export class Account {
 
   sourceLabel(source: AiringAnime['source']): string {
     return source === 'favorito' ? '❤️' : source === 'visto' ? '✅' : '🕐';
+  }
+
+  /** Sube o baja el episodio actual de un anime en la lista "Viendo", sin salir de la cuenta. */
+  adjustProgress(anime: WatchingAnime, delta: number) {
+    const next = anime.progress + delta;
+    this.watching.setProgress(anime, next);
+  }
+
+  activityIcon(kind: ActivityKind): string {
+    switch (kind) {
+      case 'favorito': return '❤️';
+      case 'visto': return '✅';
+      case 'pendiente': return '🕐';
+      case 'viendo': return '▶️';
+    }
+  }
+
+  activityText(entry: ActivityEntry): string {
+    switch (entry.kind) {
+      case 'favorito': return 'Añadido a favoritos';
+      case 'visto': return 'Marcado como visto';
+      case 'pendiente': return 'Añadido a pendientes';
+      case 'viendo': return `En curso · ${entry.detail}`;
+    }
+  }
+
+  /** Fecha relativa ("hace 3 horas", "hace 2 días"...) para el feed de actividad. */
+  relativeTime(ts: number): string {
+    const diffMs = Date.now() - ts;
+    const minutes = Math.floor(diffMs / 60000);
+    if (minutes < 1) return 'ahora mismo';
+    if (minutes < 60) return `hace ${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `hace ${hours} h`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `hace ${days} d`;
+    return this.formatDate(ts);
+  }
+
+  progressPercent(progress: number, episodes: number | null): number {
+    if (!episodes) return 0;
+    return Math.min(100, Math.round((progress / episodes) * 100));
+  }
+
+  ratingLabel(r: number): string {
+    if (r <= 2) return 'Malo';
+    if (r <= 4) return 'Regular';
+    if (r <= 6) return 'Bien';
+    if (r <= 8) return 'Muy bien';
+    return 'Obra maestra';
+  }
+
+  /** Avatar de respaldo con las iniciales del usuario, por si no hay foto o la de Google falla al cargar. */
+  avatarFallback(name?: string | null): string {
+    const initials = encodeURIComponent(name?.trim() || 'U');
+    return `https://ui-avatars.com/api/?name=${initials}&background=7c4dff&color=fff&bold=true`;
+  }
+
+  /** Las fotos de perfil de Google a veces fallan al cargar (bloqueo por referrer); si pasa, usamos el respaldo. */
+  onAvatarError(event: Event, name?: string | null) {
+    (event.target as HTMLImageElement).src = this.avatarFallback(name);
   }
 }

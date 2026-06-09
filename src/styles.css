@@ -105,27 +105,55 @@ a { color: inherit; text-decoration: none; }
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: .5rem;
-  padding: .6rem 1.25rem;
+  gap: .45rem;
+  padding: .5rem 1.1rem;
   border-radius: 8px;
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
-  font-size: .9rem;
+  font-size: .875rem;
   font-weight: 600;
-  transition: opacity .2s;
+  letter-spacing: .01em;
+  transition: background .15s, border-color .15s, color .15s, transform .1s, box-shadow .15s;
+  white-space: nowrap;
+  line-height: 1.4;
 }
 
-.btn:hover { opacity: .85; }
+.btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
 
+/* Primary — solid accent, no gradient */
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  background: var(--accent);
   color: #fff;
+  border-color: var(--accent);
+}
+.btn-primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 85%, #fff);
+  border-color: color-mix(in srgb, var(--accent) 85%, #fff);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 40%, transparent);
 }
 
+/* Outline — transparent with accent border */
 .btn-outline {
   background: transparent;
-  border: 1px solid var(--accent);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+.btn-outline:hover:not(:disabled) {
+  border-color: var(--accent);
   color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+/* Ghost — no border, subtle bg on hover */
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-muted);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+  color: var(--text);
 }
 
 .error-state {

@@ -37,9 +37,17 @@ export class JikanApi {
   }
 
   searchAnimeAll(query: string, page = 1): Observable<JikanListResponse<Anime>> {
-    // Incluye películas además de series
     return this.getCached<JikanListResponse<Anime>>(
       `${BASE_URL}/anime?q=${encodeURIComponent(query)}&page=${page}&limit=20&sfw=true`,
+      JikanApi.LIST_TTL_MS
+    );
+  }
+
+  /** Búsqueda con filtro de tipo explícito: 'tv' | 'movie' | 'all'. */
+  searchByType(query: string, type: 'tv' | 'movie' | 'all', page = 1): Observable<JikanListResponse<Anime>> {
+    const typeParam = type !== 'all' ? `&type=${type}` : '';
+    return this.getCached<JikanListResponse<Anime>>(
+      `${BASE_URL}/anime?q=${encodeURIComponent(query)}&page=${page}&limit=20${typeParam}&sfw=true`,
       JikanApi.LIST_TTL_MS
     );
   }

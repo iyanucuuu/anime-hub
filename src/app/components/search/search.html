@@ -7,20 +7,15 @@
     name="query"
     placeholder="Buscar anime..."
     autocomplete="off"
+    (ngModelChange)="onQueryChange($event)"
   />
   <button type="submit" class="btn btn-primary">Buscar</button>
 </form>
 
 <div class="type-toggle">
-  <button class="type-btn" [class.active]="activeType() === 'tv'" (click)="selectType('tv')">
-    📺 Series
-  </button>
-  <button class="type-btn" [class.active]="activeType() === 'movie'" (click)="selectType('movie')">
-    🎬 Películas
-  </button>
-  <button class="type-btn" [class.active]="activeType() === 'all'" (click)="selectType('all')">
-    🗂 Todo
-  </button>
+  <button class="type-btn" [class.active]="activeType() === 'tv'" (click)="selectType('tv')">Series</button>
+  <button class="type-btn" [class.active]="activeType() === 'movie'" (click)="selectType('movie')">Películas</button>
+  <button class="type-btn" [class.active]="activeType() === 'all'" (click)="selectType('all')">Todo</button>
 </div>
 
 @if (loading()) {

@@ -8,12 +8,24 @@
     <a routerLink="/search" routerLinkActive="active">Buscar</a>
     <a routerLink="/rankings" routerLinkActive="active">Rankings</a>
     <a routerLink="/favorites" routerLinkActive="active">Favoritos</a>
+    <a routerLink="/amigos" routerLinkActive="active" class="nav-amigos">
+      Amigos
+      @if (auth.user() && pendingRequests > 0) {
+        <span class="nav-badge">{{ pendingRequests }}</span>
+      }
+    </a>
     <a routerLink="/account" routerLinkActive="active">Cuenta</a>
   </div>
 
   @if (auth.user(); as user) {
     <div class="user-menu">
-      <img [src]="user.photoURL" [alt]="user.displayName || ''" class="avatar" />
+      <img
+        [src]="user.photoURL || avatarFallback(user.displayName)"
+        [alt]="user.displayName || ''"
+        class="avatar"
+        referrerpolicy="no-referrer"
+        (error)="onAvatarError($event, user.displayName)"
+      />
       <span class="username">{{ user.displayName }}</span>
       <button class="btn-logout" (click)="auth.logout()">Salir</button>
     </div>

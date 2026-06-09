@@ -1,0 +1,485 @@
+@if (!auth.user()) {
+  <div class="login-wall">
+    <div class="lw-card">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48" style="color:var(--text-muted)">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      <p class="lw-title">Inicia sesión para ver tus amigos</p>
+      <button class="btn btn-primary" (click)="auth.loginWithGoogle()">Entrar con Google</button>
+    </div>
+  </div>
+} @else {
+
+<div class="friends-page">
+
+  <!-- ══ CABECERA HERO ═══════════════════════════════════════════════════════ -->
+  <div class="fp-hero">
+    <div class="fp-hero-bg">
+      <div class="fp-hero-orb h1"></div>
+      <div class="fp-hero-orb h2"></div>
+    </div>
+    <div class="fp-hero-content">
+      <div>
+        <h1 class="fp-hero-title">Amigos</h1>
+        <p class="fp-hero-sub">Encuentra usuarios, añádelos y descubre qué están viendo</p>
+      </div>
+      <div class="fp-hero-stats">
+        <div class="fp-hstat">
+          <span class="fp-hstat-num">{{ friendsService.friends().length }}</span>
+          <span class="fp-hstat-label">Amigos</span>
+        </div>
+        @if (incomingCount() > 0) {
+          <div class="fp-hstat notif">
+            <span class="fp-hstat-num">{{ incomingCount() }}</span>
+            <span class="fp-hstat-label">Solicitudes</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Búsqueda dentro del hero -->
+    <div class="fp-search-wrap">
+      <div class="fp-search-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:rgba(255,255,255,.5);flex-shrink:0">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input
+          class="fp-search-input"
+          type="text"
+          placeholder="Buscar por nombre de usuario..."
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          (keydown.enter)="search()"
+          autocomplete="off"
+        />
+        <button class="fp-search-btn" (click)="search()" [disabled]="searchLoading()">
+          {{ searchLoading() ? '…' : 'Buscar' }}
+        </button>
+      </div>
+
+      <!-- Resultados de búsqueda -->
+      @if (searchDone() && searchResults().length === 0) {
+        <p class="fp-search-empty">No se encontró ningún usuario con ese nombre</p>
+      }
+      @if (searchResults().length > 0) {
+        <div class="fp-results">
+          @for (u of searchResults(); track u.uid) {
+            <div class="fp-result-card">
+              <img [src]="u.photoURL || avatarFallback(u.displayName)" [alt]="u.displayName"
+                   class="fp-result-avatar" referrerpolicy="no-referrer"
+                   (error)="onAvatarError($event, u.displayName)" />
+              <div class="fp-result-info">
+                <span class="fp-result-name">{{ u.displayName }}</span>
+                <div class="fp-result-chips">
+                  @if (u.country) { <span class="fp-chip">🌍 {{ u.country }}</span> }
+                  @if (u.favoriteAnime) { <span class="fp-chip">⭐ {{ u.favoriteAnime }}</span> }
+                  @if (u.favoriteGenre) { <span class="fp-chip">🎭 {{ u.favoriteGenre }}</span> }
+                </div>
+              </div>
+              @if (status(u.uid) === 'friends') {
+                <span class="fp-pill friends">✓ Amigos</span>
+              } @else if (status(u.uid) === 'pending-sent') {
+                <span class="fp-pill pending">Enviada</span>
+              } @else if (status(u.uid) === 'pending-received') {
+                <span class="fp-pill received">Recibida</span>
+              } @else {
+                <button class="fp-add-btn" (click)="sendRequest(u.uid)">+ Añadir</button>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ══ TABS ═══════════════════════════════════════════════════════════════ -->
+  <div class="fp-tabs">
+    <button class="fp-tab" [class.active]="activeTab() === 'amigos'" (click)="activeTab.set('amigos')">
+      Amigos
+      @if (friendsService.friends().length > 0) {
+        <span class="fp-tab-count">{{ friendsService.friends().length }}</span>
+      }
+    </button>
+    <button class="fp-tab" [class.active]="activeTab() === 'recibidas'" (click)="activeTab.set('recibidas')">
+      Recibidas
+      @if (incomingCount() > 0) {
+        <span class="fp-tab-count notif">{{ incomingCount() }}</span>
+      }
+    </button>
+    <button class="fp-tab" [class.active]="activeTab() === 'enviadas'" (click)="activeTab.set('enviadas')">
+      Enviadas
+      @if (outgoingCount() > 0) {
+        <span class="fp-tab-count">{{ outgoingCount() }}</span>
+      }
+    </button>
+  </div>
+
+  <!-- ══ TAB: AMIGOS ════════════════════════════════════════════════════════ -->
+  @if (activeTab() === 'amigos') {
+    @if (profilesLoading()) {
+      <div class="fp-grid">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <div class="fp-card skeleton-card"></div>
+        }
+      </div>
+    } @else if (friendProfiles().length === 0) {
+      <div class="fp-empty">
+        <div class="fp-empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="44" height="44">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <p class="fp-empty-title">Aún no tienes amigos</p>
+        <p class="fp-empty-sub">Busca a alguien arriba y envíale una solicitud</p>
+      </div>
+    } @else {
+      <div class="fp-grid">
+        @for (f of friendProfiles(); track f.uid) {
+          <div class="fp-card" (click)="openProfile(f)">
+
+            <!-- Cabecera de color único -->
+            <div class="fp-card-header" [style.background]="cardGradient(f.displayName)">
+              <div class="fp-card-header-shine"></div>
+              <!-- Género como badge en la cabecera -->
+              @if (f.favoriteGenre) {
+                <span class="fp-genre-badge">{{ f.favoriteGenre }}</span>
+              }
+            </div>
+
+            <!-- Avatar superpuesto -->
+            <div class="fp-card-avatar-wrap">
+              <img
+                [src]="f.photoURL || avatarFallback(f.displayName)"
+                [alt]="f.displayName"
+                class="fp-card-avatar"
+                referrerpolicy="no-referrer"
+                (error)="onAvatarError($event, f.displayName)"
+              />
+              <span class="fp-card-avatar-ring" [style.background]="cardGradient(f.displayName)"></span>
+            </div>
+
+            <!-- Cuerpo -->
+            <div class="fp-card-body">
+              <h3 class="fp-card-name">{{ f.displayName }}</h3>
+              <p class="fp-card-since">Miembro desde {{ joinLabel(f.joinedAt) }}</p>
+
+              @if (f.bio) {
+                <p class="fp-card-bio">"{{ f.bio }}"</p>
+              }
+
+              <!-- Info detallada -->
+              <div class="fp-card-info">
+                @if (f.country) {
+                  <div class="fp-info-row">
+                    <span class="fp-info-icon">🌍</span>
+                    <span class="fp-info-label">País</span>
+                    <span class="fp-info-value">{{ f.country }}</span>
+                  </div>
+                }
+                @if (f.favoriteAnime) {
+                  <div class="fp-info-row">
+                    <span class="fp-info-icon">⭐</span>
+                    <span class="fp-info-label">Anime favorito</span>
+                    <span class="fp-info-value">{{ f.favoriteAnime }}</span>
+                  </div>
+                }
+                @if (f.favoriteGenre) {
+                  <div class="fp-info-row">
+                    <span class="fp-info-icon">🎭</span>
+                    <span class="fp-info-label">Género</span>
+                    <span class="fp-info-value">{{ f.favoriteGenre }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="fp-card-footer" [style.--card-accent]="cardAccent(f.displayName)">
+              <span class="fp-card-hint">Ver perfil completo</span>
+              <button class="fp-card-remove" (click)="$event.stopPropagation(); removeFriend(f.uid)">
+                Eliminar
+              </button>
+            </div>
+
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- ══ TAB: SOLICITUDES RECIBIDAS ════════════════════════════════════════ -->
+  @if (activeTab() === 'recibidas') {
+    @if (friendsService.incomingRequests().length === 0) {
+      <div class="fp-empty">
+        <div class="fp-empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="44" height="44">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.38 2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.54a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
+        </div>
+        <p class="fp-empty-title">Sin solicitudes pendientes</p>
+        <p class="fp-empty-sub">Cuando alguien te añada aparecerá aquí</p>
+      </div>
+    } @else {
+      <div class="requests-list">
+        @for (req of friendsService.incomingRequests(); track req.id) {
+          <div class="request-card incoming">
+            <img [src]="req.fromPhoto || avatarFallback(req.fromName)" [alt]="req.fromName"
+                 class="req-avatar" referrerpolicy="no-referrer"
+                 (error)="onAvatarError($event, req.fromName)" />
+            <div class="req-info">
+              <span class="req-name">{{ req.fromName }}</span>
+              <span class="req-meta">Quiere ser tu amigo</span>
+            </div>
+            <div class="req-actions">
+              <button class="btn btn-primary btn-sm" (click)="acceptRequest(req.id)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg>
+                Aceptar
+              </button>
+              <button class="btn btn-outline btn-sm" (click)="rejectRequest(req.id)">Rechazar</button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- ══ TAB: SOLICITUDES ENVIADAS ═════════════════════════════════════════ -->
+  @if (activeTab() === 'enviadas') {
+    @if (friendsService.outgoingRequests().length === 0) {
+      <div class="fp-empty">
+        <div class="fp-empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="44" height="44">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </div>
+        <p class="fp-empty-title">No tienes solicitudes enviadas</p>
+        <p class="fp-empty-sub">Busca a alguien y envíale una solicitud</p>
+      </div>
+    } @else {
+      <div class="requests-list">
+        @for (req of friendsService.outgoingRequests(); track req.id) {
+          <div class="request-card outgoing">
+            <img [src]="req.toPhoto || avatarFallback(req.toName)" [alt]="req.toName"
+                 class="req-avatar" referrerpolicy="no-referrer"
+                 (error)="onAvatarError($event, req.toName)" />
+            <div class="req-info">
+              <span class="req-name">{{ req.toName }}</span>
+              <span class="req-meta">Solicitud pendiente</span>
+            </div>
+            <button
+              class="btn btn-outline btn-sm btn-cancel"
+              (click)="cancelRequest(req.id, req.toUid)"
+              [disabled]="isCancelling(req.toUid)"
+            >
+              {{ isCancelling(req.toUid) ? 'Cancelando…' : 'Cancelar' }}
+            </button>
+          </div>
+        }
+      </div>
+    }
+  }
+
+</div>
+
+<!-- ══ PERFIL COMPLETO DEL AMIGO ═══════════════════════════════════════════ -->
+@if (selectedFriend(); as f) {
+  <div class="fp-full-backdrop" (click)="closeProfile()">
+    <div class="fp-full-modal" (click)="$event.stopPropagation()">
+
+      <!-- Botón cerrar -->
+      <button class="fp-full-close" (click)="closeProfile()" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+
+      <!-- ── Banner de perfil ── -->
+      <div class="fp-full-banner">
+        <div class="fp-full-banner-bg" [style.background]="cardGradient(f.displayName)">
+          <div class="fp-full-banner-orb o1" [style.background]="cardColors(f.displayName)[1]"></div>
+          <div class="fp-full-banner-orb o2" [style.background]="cardColors(f.displayName)[0]"></div>
+        </div>
+
+        <div class="fp-full-profile-info">
+          <!-- Avatar -->
+          <div class="fp-full-avatar-wrap">
+            <img
+              [src]="f.photoURL || avatarFallback(f.displayName)"
+              [alt]="f.displayName"
+              class="fp-full-avatar"
+              referrerpolicy="no-referrer"
+              (error)="onAvatarError($event, f.displayName)"
+            />
+            <span class="fp-full-avatar-ring" [style.background]="cardGradient(f.displayName)"></span>
+          </div>
+
+          <!-- Texto -->
+          <div class="fp-full-profile-text">
+            <h2 class="fp-full-name">{{ f.displayName }}</h2>
+            @if (f.joinedAt) {
+              <p class="fp-full-join">Miembro desde {{ joinDateFull(f.joinedAt) }}</p>
+            }
+            @if (f.bio) {
+              <p class="fp-full-bio">{{ f.bio }}</p>
+            }
+            <div class="fp-full-tags">
+              @if (f.country)       { <span class="fp-full-tag">🌍 {{ f.country }}</span> }
+              @if (f.favoriteAnime) { <span class="fp-full-tag">⭐ {{ f.favoriteAnime }}</span> }
+              @if (f.favoriteGenre) { <span class="fp-full-tag">🎭 {{ f.favoriteGenre }}</span> }
+            </div>
+          </div>
+
+          <!-- Eliminar -->
+          <button class="fp-modal-remove fp-full-remove" (click)="removeFriend(f.uid)">
+            Eliminar amigo
+          </button>
+        </div>
+
+        <!-- Stats row -->
+        <div class="fp-full-stats-row">
+          <div class="fp-full-stat">
+            <span class="fp-full-stat-num">{{ friendFavs().length }}</span>
+            <span class="fp-full-stat-label">Favoritos</span>
+          </div>
+          <div class="fp-full-stat">
+            <span class="fp-full-stat-num">{{ friendWatched().length }}</span>
+            <span class="fp-full-stat-label">Vistos</span>
+          </div>
+          <div class="fp-full-stat">
+            <span class="fp-full-stat-num">{{ friendPending().length }}</span>
+            <span class="fp-full-stat-label">Pendientes</span>
+          </div>
+          <div class="fp-full-stat">
+            <span class="fp-full-stat-num">{{ friendWatching().length }}</span>
+            <span class="fp-full-stat-label">Viendo</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tabs ── -->
+      <div class="fp-full-tabs">
+        <button class="fp-full-tab" [class.active]="profileTab() === 'favoritos'" (click)="profileTab.set('favoritos')">Favoritos</button>
+        <button class="fp-full-tab" [class.active]="profileTab() === 'vistos'"    (click)="profileTab.set('vistos')">Vistos</button>
+        <button class="fp-full-tab" [class.active]="profileTab() === 'viendo'"    (click)="profileTab.set('viendo')">En curso</button>
+        <button class="fp-full-tab" [class.active]="profileTab() === 'pendientes'" (click)="profileTab.set('pendientes')">Pendientes</button>
+      </div>
+
+      <!-- ── Contenido ── -->
+      <div class="fp-full-content">
+
+        @if (friendDataLoading()) {
+          <div class="fp-full-loading">
+            <div class="fp-full-spinner"></div>
+            <p>Cargando perfil…</p>
+          </div>
+        }
+
+        <!-- FAVORITOS -->
+        @if (!friendDataLoading() && profileTab() === 'favoritos') {
+          @if (friendFavs().length === 0) {
+            <div class="fp-empty" style="padding:2.5rem 1rem">
+              <div class="fp-empty-icon"><span style="font-size:1.8rem">🎌</span></div>
+              <p class="fp-empty-title">Sin favoritos todavía</p>
+            </div>
+          } @else {
+            <div class="fp-full-grid">
+              @for (a of friendFavs(); track a.mal_id) {
+                <a [routerLink]="['/anime', a.mal_id]" class="fp-full-anime-card" (click)="closeProfile()">
+                  <img [src]="a.images?.jpg?.image_url" [alt]="a.title" class="fp-full-anime-img" />
+                  <div class="fp-full-anime-info">
+                    <span class="fp-full-anime-title">{{ a.title }}</span>
+                    @if (a.score) { <span class="fp-full-anime-score">⭐ {{ a.score }}</span> }
+                  </div>
+                </a>
+              }
+            </div>
+          }
+        }
+
+        <!-- VISTOS -->
+        @if (!friendDataLoading() && profileTab() === 'vistos') {
+          @if (friendWatched().length === 0) {
+            <div class="fp-empty" style="padding:2.5rem 1rem">
+              <div class="fp-empty-icon"><span style="font-size:1.8rem">👁</span></div>
+              <p class="fp-empty-title">Aún no ha visto nada</p>
+            </div>
+          } @else {
+            <div class="fp-full-list">
+              @for (a of friendWatched(); track a.mal_id) {
+                <a [routerLink]="['/anime', a.mal_id]" class="fp-full-list-item" (click)="closeProfile()">
+                  <img [src]="a.images?.jpg?.image_url" [alt]="a.title" class="fp-full-list-thumb" />
+                  <div class="fp-full-list-info">
+                    <span class="fp-full-list-title">{{ a.title }}</span>
+                    @if (a.score) { <span class="fp-full-list-meta">⭐ {{ a.score }}</span> }
+                  </div>
+                  <span class="fp-full-badge watched">✅ Visto</span>
+                </a>
+              }
+            </div>
+          }
+        }
+
+        <!-- EN CURSO -->
+        @if (!friendDataLoading() && profileTab() === 'viendo') {
+          @if (friendWatching().length === 0) {
+            <div class="fp-empty" style="padding:2.5rem 1rem">
+              <div class="fp-empty-icon"><span style="font-size:1.8rem">▶️</span></div>
+              <p class="fp-empty-title">Nada en curso</p>
+            </div>
+          } @else {
+            <div class="fp-full-list">
+              @for (a of friendWatching(); track a.mal_id) {
+                <a [routerLink]="['/anime', a.mal_id]" class="fp-full-list-item" (click)="closeProfile()">
+                  <img [src]="a.images?.jpg?.image_url" [alt]="a.title" class="fp-full-list-thumb" />
+                  <div class="fp-full-list-info">
+                    <span class="fp-full-list-title">{{ a.title }}</span>
+                    <span class="fp-full-list-meta">
+                      Episodio {{ a.progress }}{{ a.episodes ? ' / ' + a.episodes : '' }}
+                    </span>
+                    @if (a.episodes) {
+                      <div class="fp-full-progress-bar">
+                        <div class="fp-full-progress-fill"
+                             [style.width.%]="(a.progress / a.episodes) * 100"></div>
+                      </div>
+                    }
+                  </div>
+                  <span class="fp-full-badge watching">▶️ Viendo</span>
+                </a>
+              }
+            </div>
+          }
+        }
+
+        <!-- PENDIENTES -->
+        @if (!friendDataLoading() && profileTab() === 'pendientes') {
+          @if (friendPending().length === 0) {
+            <div class="fp-empty" style="padding:2.5rem 1rem">
+              <div class="fp-empty-icon"><span style="font-size:1.8rem">🕐</span></div>
+              <p class="fp-empty-title">Sin pendientes</p>
+            </div>
+          } @else {
+            <div class="fp-full-list">
+              @for (a of friendPending(); track a.mal_id) {
+                <a [routerLink]="['/anime', a.mal_id]" class="fp-full-list-item" (click)="closeProfile()">
+                  <img [src]="a.images?.jpg?.image_url" [alt]="a.title" class="fp-full-list-thumb" />
+                  <div class="fp-full-list-info">
+                    <span class="fp-full-list-title">{{ a.title }}</span>
+                    @if (a.score) { <span class="fp-full-list-meta">⭐ {{ a.score }}</span> }
+                  </div>
+                  <span class="fp-full-badge pending">🕐 Pendiente</span>
+                </a>
+              }
+            </div>
+          }
+        }
+
+      </div>
+    </div>
+  </div>
+}
+
+}

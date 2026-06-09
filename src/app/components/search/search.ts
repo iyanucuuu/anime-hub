@@ -50,9 +50,7 @@ export class Search implements OnInit {
         switchMap(({ query, type }) => {
           this.loading.set(true);
           this.error.set(null);
-          return type === 'tv'
-            ? this.api.searchAnime(query)
-            : this.api.searchAnimeAll(query);
+          return this.api.searchByType(query, type);
         }),
         takeUntilDestroyed(this.destroyRef)
       )
@@ -74,6 +72,14 @@ export class Search implements OnInit {
         queryParams: { q: this.query.trim() },
         queryParamsHandling: 'merge',
       });
+      this.emitSearch();
+    }
+  }
+
+  /** Dispara la búsqueda automáticamente mientras el usuario escribe (con debounce). */
+  onQueryChange(value: string) {
+    this.query = value;
+    if (value.trim().length >= 2) {
       this.emitSearch();
     }
   }
