@@ -6,6 +6,9 @@ import { JikanApi } from '../../services/jikan-api';
 import { dedupByFranchise } from '../../services/dedup';
 import { AnimeCardComponent } from '../anime-card/anime-card';
 import { SkeletonCard } from '../skeleton-card/skeleton-card';
+import { SeoService } from '../../services/seo';
+import { RecommendationsService } from '../../services/recommendations';
+import { AuthService } from '../../services/auth';
 import { Anime } from '../../models/anime.models';
 
 @Component({
@@ -18,6 +21,9 @@ export class Home implements OnInit {
   private api = inject(JikanApi);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private seo = inject(SeoService);
+  recommendations = inject(RecommendationsService);
+  auth = inject(AuthService);
 
   query = '';
   seasonal = signal<Anime[]>([]);
@@ -25,6 +31,9 @@ export class Home implements OnInit {
   error = signal<string | null>(null);
 
   ngOnInit() {
+    this.seo.set({ title: 'Inicio', description: 'Anime de la temporada actual — descubre novedades y busca tus series favoritas.' });
+    // Cargar recomendaciones si hay sesión activa
+    if (this.auth.user()) this.recommendations.load();
     this.api.getSeasonNow()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

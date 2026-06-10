@@ -127,4 +127,4 @@ export interface AnimeUserPayload {
   status: string;
   broadcast?: BroadcastInfo;
   episodes?: number | null;
-}
+  

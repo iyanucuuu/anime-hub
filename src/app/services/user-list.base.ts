@@ -2,6 +2,7 @@ import { signal, effect, inject } from '@angular/core';
 import { db } from '../firebase';
 import { collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { AuthService } from './auth';
+import { ActivityService, ActivityType } from './activity';
 import { AnimeUserPayload } from '../models/anime.models';
 
 /**
@@ -12,6 +13,7 @@ import { AnimeUserPayload } from '../models/anime.models';
  */
 export abstract class UserListBase<T extends AnimeUserPayload> {
   protected auth = inject(AuthService);
+  private activity = inject(ActivityService);
 
   protected _items = signal<T[]>([]);
   readonly items = this._items.asReadonly();
@@ -54,6 +56,12 @@ export abstract class UserListBase<T extends AnimeUserPayload> {
       await deleteDoc(ref);
     } else {
       await setDoc(ref, this.buildPayload(anime));
+      // Registrar actividad (sin await para no bloquear la UI)
+      this.activity.log(this.collectionName as ActivityType, {
+        mal_id: anime.mal_id,
+        animeTitle: anime.title,
+        animeImage: anime.images?.jpg?.image_url ?? '',
+      }).catch(() => {});
     }
   }
 }

@@ -1,0 +1,52 @@
+<h1 class="page-title">Feed de amigos</h1>
+
+@if (loading()) {
+  <div class="feed-loading">
+    @for (_ of [1,2,3,4,5]; track $index) {
+      <div class="skeleton-event"></div>
+    }
+  </div>
+} @else if (!auth.user()) {
+  <div class="feed-empty">
+    <span>🔐</span>
+    <p>Inicia sesión para ver el feed de tus amigos</p>
+  </div>
+} @else if (events().length === 0) {
+  <div class="feed-empty">
+    <span>👀</span>
+    <p>Aún no hay actividad de tus amigos</p>
+    <small>Cuando tus amigos añadan anime a sus listas o escriban reseñas, aparecerá aquí.</small>
+    <a routerLink="/amigos" class="btn btn-primary">Buscar amigos</a>
+  </div>
+} @else {
+  <div class="feed-list">
+    @for (ev of events(); track ev.id) {
+      <a [routerLink]="['/anime', ev.mal_id]" class="feed-event">
+        <img
+          [src]="ev.photoURL || avatarFallback(ev.displayName)"
+          [alt]="ev.displayName"
+          class="event-avatar"
+          referrerpolicy="no-referrer"
+          (error)="onAvatarError($event, ev.displayName)"
+        />
+        <div class="event-body">
+          <p class="event-text">
+            <strong>{{ ev.displayName }}</strong>
+            <span> {{ label(ev.type).icon }} {{ label(ev.type).text }} </span>
+            <span class="event-anime">{{ ev.animeTitle }}</span>
+            @if (ev.type === 'review' && ev.rating) {
+              <span class="event-rating"> · ★ {{ ev.rating }}/10</span>
+            }
+          </p>
+          <span class="event-time">{{ relativeTime(ev.timestamp) }}</span>
+        </div>
+        <img
+          [src]="ev.animeImage"
+          [alt]="ev.animeTitle"
+          class="event-cover"
+          loading="lazy"
+        />
+      </a>
+    }
+  </div>
+}

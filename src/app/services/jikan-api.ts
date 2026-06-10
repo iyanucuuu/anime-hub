@@ -80,6 +80,13 @@ export class JikanApi {
     );
   }
 
+  getTopByGenre(genreId: number, page = 1, type: 'tv' | 'movie' = 'tv'): Observable<JikanListResponse<Anime>> {
+    return this.getCached<JikanListResponse<Anime>>(
+      `${BASE_URL}/anime?genres=${genreId}&order_by=score&sort=desc&page=${page}&limit=25&type=${type}&sfw=true`,
+      JikanApi.LIST_TTL_MS
+    );
+  }
+
   getSeasonNow(page = 1): Observable<JikanListResponse<Anime>> {
     return this.getCached<JikanListResponse<Anime>>(
       `${BASE_URL}/seasons/now?page=${page}&limit=24&filter=tv`,
@@ -110,7 +117,4 @@ export class JikanApi {
       shareReplay({ bufferSize: 1, refCount: false })
     );
 
-    this.cache.set(url, { expiresAt: now + ttlMs, observable$ });
-    return observable$;
-  }
-}
+    this.cache.set(url, { expiresAt: now + ttlMs, observable$ 

@@ -42,9 +42,9 @@ function getTodayJST(): number {
 
 export function airStatusLabel(status: AirStatus): { emoji: string; text: string; color: string } {
   switch (status) {
-    case 'today':     return { emoji: '🔴', text: 'Hoy',         color: '#ff4444' };
-    case 'tomorrow':  return { emoji: '🟡', text: 'Mañana',      color: '#ffc107' };
-    case 'this-week': return { emoji: '📅', text: 'Esta semana', color: '#7c4dff' };
+    case 'today':     return { emoji: '◉', text: 'Hoy',         color: '#FF2D55' };
+    case 'tomorrow':  return { emoji: '◎', text: 'Mañana',      color: '#FFB627' };
+    case 'this-week': return { emoji: '◷', text: 'Esta semana', color: '#0EA5E9' };
     default:          return { emoji: '',   text: '',             color: '' };
   }
 }

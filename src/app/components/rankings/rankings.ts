@@ -51,9 +51,13 @@ export class Rankings implements OnInit {
     this.error.set(null);
     this.topAnime.set([]);
     const type = this.activeType();
-    const request$ = type === 'movie'
-      ? this.api.getTopMovies()
-      : this.api.getTopAnime();
+    const genreId = this.activeGenre();
+
+    const request$ = genreId
+      ? this.api.getTopByGenre(genreId, 1, type)
+      : type === 'movie'
+        ? this.api.getTopMovies()
+        : this.api.getTopAnime();
 
     request$
       .pipe(takeUntilDestroyed(this.destroyRef))

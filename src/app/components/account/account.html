@@ -27,13 +27,13 @@
           }
           <div class="profile-tags">
             @if (extendedProfile()?.country) {
-              <span class="profile-tag">🌍 {{ extendedProfile()!.country }}</span>
+              <span class="profile-tag">{{ extendedProfile()!.country }}</span>
             }
             @if (extendedProfile()?.favoriteAnime) {
-              <span class="profile-tag">⭐ {{ extendedProfile()!.favoriteAnime }}</span>
+              <span class="profile-tag profile-tag-star">★ {{ extendedProfile()!.favoriteAnime }}</span>
             }
             @if (extendedProfile()?.favoriteGenre) {
-              <span class="profile-tag">🎭 {{ extendedProfile()!.favoriteGenre }}</span>
+              <span class="profile-tag">{{ extendedProfile()!.favoriteGenre }}</span>
             }
           </div>
         </div>
@@ -60,6 +60,48 @@
           <span class="stat-num">{{ watching.watching().length }}</span>
           <span class="stat-label">Viendo</span>
         </div>
+      </div>
+
+      <!-- Stats avanzadas -->
+      <div class="deep-stats-row">
+        <div class="deep-stat">
+          <span class="ds-icon ds-red">◈</span>
+          <div>
+            <p class="ds-val">{{ totalUniqueAnime }}</p>
+            <p class="ds-lbl">Animes únicos</p>
+          </div>
+        </div>
+        <div class="deep-stat">
+          <span class="ds-icon ds-blue">▶</span>
+          <div>
+            <p class="ds-val">{{ estimatedEpisodesWatched }}</p>
+            <p class="ds-lbl">Episodios vistos</p>
+          </div>
+        </div>
+        <div class="deep-stat">
+          <span class="ds-icon ds-gold">★</span>
+          <div>
+            <p class="ds-val">{{ bestScore }}</p>
+            <p class="ds-lbl">Mejor score favorito</p>
+          </div>
+        </div>
+        <div class="deep-stat">
+          <span class="ds-icon ds-red">◉</span>
+          <div>
+            <p class="ds-val">{{ ownReviewCount }}</p>
+            <p class="ds-lbl">Reseñas escritas</p>
+          </div>
+        </div>
+        <div class="deep-stat">
+          <span class="ds-icon ds-gold">≈</span>
+          <div>
+            <p class="ds-val">{{ avgOwnRating }}</p>
+            <p class="ds-lbl">Nota media propia</p>
+          </div>
+        </div>
+        <button class="btn btn-outline share-profile-btn" (click)="copyProfileLink()">
+          Copiar link de perfil
+        </button>
       </div>
     </div>
 
@@ -90,7 +132,7 @@
       @if (activeTab() === 'semana') {
         @if (airingThisWeek().length === 0) {
           <div class="empty-tab">
-            <span class="empty-icon">📡</span>
+            <span class="empty-icon">◍</span>
             <p>Ninguno de tus animes emite esta semana</p>
             <small style="color:var(--text-muted)">Añade animes en emisión a tus listas para verlos aquí</small>
           </div>
@@ -105,9 +147,9 @@
                     <span class="week-source">{{ sourceLabel(anime.source) }}</span>
                   </div>
                   @if (anime.broadcast?.string; as schedule) {
-                    <span class="week-schedule">🗓 {{ schedule }}</span>
+                    <span class="week-schedule">{{ schedule }}</span>
                   }
-                  <span class="week-score">⭐ {{ anime.score }}</span>
+                  <span class="week-score">★ {{ anime.score }}</span>
                 </div>
                 <span class="air-chip" [style.background]="anime.label.color + '22'" [style.color]="anime.label.color">
                   {{ anime.label.emoji }} {{ anime.label.text }}
@@ -122,7 +164,7 @@
       @if (activeTab() === 'favoritos') {
         @if (favs.favorites().length === 0) {
           <div class="empty-tab">
-            <span class="empty-icon">🎌</span>
+            <span class="empty-icon">◈</span>
             <p>Aún no tienes favoritos</p>
             <a routerLink="/home" class="btn-primary">Explorar anime</a>
           </div>
@@ -133,7 +175,7 @@
                 <img [src]="anime.images.jpg.image_url" [alt]="anime.title" />
                 <div class="fav-info">
                   <span class="fav-title">{{ anime.title }}</span>
-                  <span class="fav-score">⭐ {{ anime.score }}</span>
+                  <span class="fav-score">★ {{ anime.score }}</span>
                 </div>
               </a>
             }
@@ -148,7 +190,7 @@
             {{ watched.watched().length }} anime{{ watched.watched().length !== 1 ? 's' : '' }} vistos
           </p>
           <div class="search-wrap">
-            <span class="search-icon">🔍</span>
+            <span class="search-icon">⌕</span>
             <input
               type="text"
               placeholder="Buscar en mis vistos..."
@@ -161,13 +203,13 @@
 
         @if (watched.watched().length === 0) {
           <div class="empty-tab">
-            <span class="empty-icon">👁</span>
+            <span class="empty-icon">◉</span>
             <p>Aún no has marcado ningún anime como visto</p>
             <a routerLink="/home" class="btn-primary">Explorar anime</a>
           </div>
         } @else if (filteredWatched().length === 0) {
           <div class="empty-tab">
-            <span class="empty-icon">🔍</span>
+            <span class="empty-icon">⌕</span>
             <p>No se encontró ningún anime con "{{ searchQuery() }}"</p>
           </div>
         } @else {
@@ -180,7 +222,7 @@
                   <span class="watched-score">⭐ {{ anime.score }}</span>
                 </div>
                 <span class="watched-date">{{ formatDate(anime.watchedAt) }}</span>
-                <span class="watched-badge">✅ Visto</span>
+                <span class="watched-badge">Visto</span>
               </a>
             }
           </div>
@@ -194,7 +236,7 @@
             {{ watchLater.list().length }} anime{{ watchLater.list().length !== 1 ? 's' : '' }} pendientes
           </p>
           <div class="search-wrap">
-            <span class="search-icon">🔍</span>
+            <span class="search-icon">⌕</span>
             <input
               type="text"
               placeholder="Buscar en pendientes..."
@@ -207,13 +249,13 @@
 
         @if (watchLater.list().length === 0) {
           <div class="empty-tab">
-            <span class="empty-icon">🕐</span>
+            <span class="empty-icon">○</span>
             <p>No tienes animes pendientes</p>
             <a routerLink="/home" class="btn-primary">Explorar anime</a>
           </div>
         } @else if (filteredPending().length === 0) {
           <div class="empty-tab">
-            <span class="empty-icon">🔍</span>
+            <span class="empty-icon">⌕</span>
             <p>No se encontró ningún anime con "{{ searchQuery() }}"</p>
           </div>
         } @else {
@@ -226,7 +268,7 @@
                   <span class="watched-score">⭐ {{ anime.score }}</span>
                 </div>
                 <span class="watched-date">{{ formatDate(anime.addedAt) }}</span>
-                <span class="pending-badge">🕐 Pendiente</span>
+                <span class="pending-badge">Pendiente</span>
               </a>
             }
           </div>
@@ -240,7 +282,7 @@
             {{ watching.watching().length }} anime{{ watching.watching().length !== 1 ? 's' : '' }} en curso
           </p>
           <div class="search-wrap">
-            <span class="search-icon">🔍</span>
+            <span class="search-icon">⌕</span>
             <input
               type="text"
               placeholder="Buscar en lo que estás viendo..."
@@ -253,13 +295,13 @@
 
         @if (watching.watching().length === 0) {
           <div class="empty-tab">
-            <span class="empty-icon">▶️</span>
+            <span class="empty-icon">▶</span>
             <p>Aún no estás siguiendo el progreso de ningún anime</p>
             <a routerLink="/home" class="btn-primary">Explorar anime</a>
           </div>
         } @else if (filteredWatching().length === 0) {
           <div class="empty-tab">
-            <span class="empty-icon">🔍</span>
+            <span class="empty-icon">⌕</span>
             <p>No se encontró ningún anime con "{{ searchQuery() }}"</p>
           </div>
         } @else {
@@ -285,7 +327,7 @@
                   <span class="step-count">{{ anime.progress }}</span>
                   <button class="step-btn" (click)="adjustProgress(anime, 1)" [disabled]="!!anime.episodes && anime.progress >= anime.episodes">+</button>
                 </div>
-                <span class="watching-badge">▶️ Viendo</span>
+                <span class="watching-badge">▶ Viendo</span>
               </div>
             }
           </div>
@@ -301,7 +343,7 @@
             <h3 class="social-col-title">Mi actividad</h3>
             @if (activity().length === 0) {
               <div class="empty-tab">
-                <span class="empty-icon">📋</span>
+                <span class="empty-icon">◈</span>
                 <p>Todavía no hay actividad</p>
                 <small style="color:var(--text-muted)">Añade animes a tus listas y aquí irá apareciendo tu historial</small>
               </div>
@@ -328,7 +370,7 @@
             <h3 class="social-col-title">Reseñas recientes</h3>
             @if (reviews.communityFeed().length === 0) {
               <div class="empty-tab">
-                <span class="empty-icon">💬</span>
+                <span class="empty-icon">◉</span>
                 <p>Aún no hay reseñas de la comunidad</p>
                 <small style="color:var(--text-muted)">Entra en la ficha de un anime y escribe la primera</small>
               </div>
@@ -434,10 +476,10 @@
       <h2>Únete a la comunidad</h2>
       <p>Inicia sesión para acceder a tus favoritos, ver recomendaciones de otros usuarios y participar en la comunidad.</p>
       <ul class="features">
-        <li><span>⭐</span> Guarda tus animes favoritos</li>
-        <li><span>👁</span> Lleva el control de lo que has visto</li>
-        <li><span>💬</span> Comparte recomendaciones</li>
-        <li><span>🤖</span> Recibe recomendaciones con IA <span class="badge">Próximamente</span></li>
+        <li><span>★</span> Guarda tus animes favoritos</li>
+        <li><span>◉</span> Lleva el control de lo que has visto</li>
+        <li><span>◈</span> Comparte recomendaciones</li>
+        <li><span>◆</span> Recibe recomendaciones con IA <span class="badge">Próximamente</span></li>
       </ul>
       <button class="btn-google" (click)="auth.loginWithGoogle()">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="22" />

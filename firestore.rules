@@ -1,0 +1,58 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    function isAuth() {
+      return request.auth != null;
+    }
+    function isOwner(uid) {
+      return isAuth() && request.auth.uid == uid;
+    }
+
+    // ── Usuarios (perfil extendido) ───────────────────────────────────────────
+    match /users/{uid} {
+      allow read:  if isAuth();
+      allow write: if isOwner(uid);
+    }
+
+    // ── Listas de usuario (favoritos, vistos, pendientes, viendo) ─────────────
+    match /users/{uid}/{list}/{docId} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // ── Actividad global del feed ─────────────────────────────────────────────
+    // Cualquier usuario autenticado puede leer actividades (necesario para el feed).
+    // Solo el propio usuario puede escribir su actividad.
+    match /activities/{eventId} {
+      allow read:  if isAuth();
+      allow write: if isAuth() && request.auth.uid == resource.data.uid
+                   || isAuth() && request.auth.uid == request.resource.data.uid;
+    }
+
+    // ── Amigos ────────────────────────────────────────────────────────────────
+    match /friendRequests/{docId} {
+      allow read:  if isAuth() && (
+        resource.data.from == request.auth.uid ||
+        resource.data.to   == request.auth.uid
+      );
+      allow create: if isAuth() && request.resource.data.from == request.auth.uid;
+      allow update, delete: if isAuth() && (
+        resource.data.from == request.auth.uid ||
+        resource.data.to   == request.auth.uid
+      );
+    }
+
+    match /friends/{uid}/list/{friendId} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // ── Reseñas ───────────────────────────────────────────────────────────────
+    match /reviews/{reviewId} {
+      allow read:   if isAuth();
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuth() && resource.data.userId == request.auth.uid;
+    }
+  }
+}

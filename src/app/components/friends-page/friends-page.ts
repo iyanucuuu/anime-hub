@@ -20,7 +20,7 @@ type FriendsTab = 'amigos' | 'recibidas' | 'enviadas';
 
 // Paleta de gradientes para las cabeceras de las tarjetas
 const CARD_GRADIENTS = [
-  ['#7c4dff', '#e040fb'],
+  ['#FF2D55', '#FFB627'],
   ['#00b4d8', '#0077b6'],
   ['#ff6b6b', '#ee0979'],
   ['#11998e', '#38ef7d'],
@@ -80,9 +80,6 @@ export class FriendsPage {
       this.friendWatched.set(watched.docs.map(d => d.data()));
       this.friendWatching.set(watching.docs.map(d => d.data()));
       this.friendPending.set(pending.docs.map(d => d.data()));
-      console.log('[FriendsPage] datos cargados:', {
-        favs: favs.size, watched: watched.size, watching: watching.size, pending: pending.size
-      });
     } catch (e) {
       console.warn('[FriendsPage] No se pudo cargar el perfil del amigo:', e);
     }

@@ -4,6 +4,7 @@ import { Location, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { JikanApi } from '../../services/jikan-api';
+import { SeoService } from '../../services/seo';
 import { FavoritesService } from '../../services/favorites';
 import { WatchedService } from '../../services/watched';
 import { WatchLaterService } from '../../services/watchlater';
@@ -27,6 +28,7 @@ export class AnimeDetail implements OnInit, OnDestroy {
   private router = inject(Router);
   private location = inject(Location);
   private api = inject(JikanApi);
+  private seo = inject(SeoService);
   private destroyRef = inject(DestroyRef);
   favoritesService = inject(FavoritesService);
   watchedService = inject(WatchedService);
@@ -68,6 +70,12 @@ export class AnimeDetail implements OnInit, OnDestroy {
         next: (res) => {
           this.anime.set(res.data);
           this.loading.set(false);
+          const a = res.data;
+          this.seo.set({
+            title: a.title_english ?? a.title,
+            description: a.synopsis?.slice(0, 155) ?? undefined,
+            image: a.images?.jpg?.large_image_url,
+          });
           // Arrancar suscripción a reseñas una vez que conocemos el anime
           this.unsubReviews = this.reviewsService.watchAnimeReviews(id);
         },
@@ -90,6 +98,10 @@ export class AnimeDetail implements OnInit, OnDestroy {
 
   private animePayload(): AnimeUserPayload {
     const a = this.anime()!;
+    const genres = [
+      ...(a.genres ?? []),
+      ...(a.themes ?? []),
+    ].map(g => g.name).filter(Boolean);
     return {
       mal_id: a.mal_id,
       title: a.title_english ?? a.title,
@@ -98,6 +110,7 @@ export class AnimeDetail implements OnInit, OnDestroy {
       status: a.status,
       broadcast: a.broadcast ?? undefined,
       episodes: a.episodes ?? null,
+      genreNames: genres.length ? genres : undefined,
     };
   }
 
@@ -191,9 +204,4 @@ export class AnimeDetail implements OnInit, OnDestroy {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name?.trim() || 'U')}&background=7c4dff&color=fff&bold=true`;
   }
 
-  onAvatarError(event: Event, name?: string | null) {
-    (event.target as HTMLImageElement).src = this.avatarFallback(name);
-  }
-
-  goBack() { this.location.back(); }
-}
+ 

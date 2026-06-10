@@ -1,0 +1,58 @@
+.card-img-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Bottom gradient — reveals on hover, giving movie-poster feel */
+.card-img-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(13, 13, 18, 0.82) 0%,
+    rgba(13, 13, 18, 0.25) 38%,
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 0.32s ease;
+  pointer-events: none;
+}
+
+.anime-card:hover .card-img-wrap::after {
+  opacity: 1;
+}
+
+/* ─── Watching badge ───────────────────────────────────────────────── */
+
+.watching-badge {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  background: rgba(14, 165, 233, 0.88);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.18rem 0.5rem;
+  border-radius: 4px;
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+  letter-spacing: 0.03em;
+  z-index: 2;
+}
+
+/* ─── Progress bar ─────────────────────────────────────────────────── */
+
+.card-progress-bar {
+  height: 2px;
+  border-radius: 0;
+  background: var(--border);
+  overflow: hidden;
+  margin: 0.4rem 0 0;
+}
+
+.card-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width 0.35s ease;
+}

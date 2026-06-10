@@ -13,6 +13,27 @@
   </form>
 </section>
 
+<!-- Recomendaciones personalizadas (solo si hay sesión y resultados) -->
+@if (auth.user() && (recommendations.loading() || recommendations.results().length > 0)) {
+  <section class="reco-section">
+    <h2 class="page-title reco-title">
+      ✨ Para ti
+      @if (recommendations.topGenre()) {
+        <span class="reco-genre-chip">{{ recommendations.topGenre() }}</span>
+      }
+    </h2>
+    @if (recommendations.loading()) {
+      <app-skeleton-card [count]="6" />
+    } @else {
+      <div class="anime-grid">
+        @for (anime of recommendations.results(); track anime.mal_id) {
+          <app-anime-card [anime]="anime" (clicked)="goToAnime($event)" />
+        }
+      </div>
+    }
+  </section>
+}
+
 <section>
   <h2 class="page-title">Temporada actual</h2>
 

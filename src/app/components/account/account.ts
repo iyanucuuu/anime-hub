@@ -220,6 +220,46 @@ export class Account {
     return Math.max(...favs.map(f => f.score ?? 0)).toFixed(1);
   }
 
+  // ─── Estadísticas avanzadas ────────────────────────────────────────────────
+
+  /** Total de animes únicos en todas las listas. */
+  get totalUniqueAnime(): number {
+    return new Set([
+      ...this.favs.favorites().map(a => a.mal_id),
+      ...this.watched.watched().map(a => a.mal_id),
+      ...this.watching.watching().map(a => a.mal_id),
+      ...this.watchLater.list().map(a => a.mal_id),
+    ]).size;
+  }
+
+  /** Episodios totales estimados (suma de episodios en la lista "Visto"). */
+  get estimatedEpisodesWatched(): number {
+    return this.watched.watched().reduce((sum, a) => sum + (a.episodes ?? 0), 0);
+  }
+
+  /** Nota media de las propias reseñas. */
+  get avgOwnRating(): string {
+    const myReviews = this.reviews.communityFeed().filter(r => r.userId === this.auth.user()?.uid);
+    if (!myReviews.length) return '—';
+    const avg = myReviews.reduce((s, r) => s + r.rating, 0) / myReviews.length;
+    return avg.toFixed(1);
+  }
+
+  /** Número de reseñas escritas. */
+  get ownReviewCount(): number {
+    return this.reviews.communityFeed().filter(r => r.userId === this.auth.user()?.uid).length;
+  }
+
+  /** URL del perfil público compartible. */
+  get publicProfileUrl(): string {
+    const uid = this.auth.user()?.uid;
+    return uid ? `${typeof window !== 'undefined' ? window.location.origin : ''}/u/${uid}` : '';
+  }
+
+  copyProfileLink() {
+    if (this.publicProfileUrl) navigator.clipboard.writeText(this.publicProfileUrl).catch(() => {});
+  }
+
   get joinDate(): string {
     const u = this.auth.user();
     if (!u?.metadata?.creationTime) return '—';
@@ -233,7 +273,7 @@ export class Account {
   }
 
   sourceLabel(source: AiringAnime['source']): string {
-    return source === 'favorito' ? '❤️' : source === 'visto' ? '✅' : '🕐';
+    return source === 'favorito' ? '♥' : source === 'visto' ? '✓' : '○';
   }
 
   /** Sube o baja el episodio actual de un anime en la lista "Viendo", sin salir de la cuenta. */
@@ -244,10 +284,10 @@ export class Account {
 
   activityIcon(kind: ActivityKind): string {
     switch (kind) {
-      case 'favorito': return '❤️';
-      case 'visto': return '✅';
-      case 'pendiente': return '🕐';
-      case 'viendo': return '▶️';
+      case 'favorito': return '♥';
+      case 'visto': return '✓';
+      case 'pendiente': return '○';
+      case 'viendo': return '▶';
     }
   }
 
@@ -289,7 +329,7 @@ export class Account {
   /** Avatar de respaldo con las iniciales del usuario, por si no hay foto o la de Google falla al cargar. */
   avatarFallback(name?: string | null): string {
     const initials = encodeURIComponent(name?.trim() || 'U');
-    return `https://ui-avatars.com/api/?name=${initials}&background=7c4dff&color=fff&bold=true`;
+    return `https://ui-avatars.com/api/?name=${initials}&background=FF2D55&color=fff&bold=true`;
   }
 
   /** Las fotos de perfil de Google a veces fallan al cargar (bloqueo por referrer); si pasa, usamos el respaldo. */

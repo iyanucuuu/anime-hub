@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { FriendsService } from '../../services/friends';
+import { ThemeService } from '../../services/theme';
 
 @Component({
   selector: 'app-navbar',
@@ -12,6 +13,7 @@ import { FriendsService } from '../../services/friends';
 export class Navbar {
   auth = inject(AuthService);
   friends = inject(FriendsService);
+  theme = inject(ThemeService);
 
   get pendingRequests(): number {
     return this.friends.incomingRequests().length;

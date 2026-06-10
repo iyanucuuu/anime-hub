@@ -1,42 +1,113 @@
+/* ─── Hero search ──────────────────────────────────────────────────── */
+
 .hero {
   text-align: center;
-  padding: 3rem 1rem 2.5rem;
+  padding: 4rem 1rem 3.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ghost watermark text behind everything */
+.hero::before {
+  content: 'ANIME';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -58%);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(6rem, 18vw, 14rem);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--accent) 9%, transparent);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 0;
+  user-select: none;
 }
 
 .hero h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: .75rem;
+  position: relative;
+  z-index: 1;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  line-height: 1;
+  animation: fade-up 0.6s cubic-bezier(0.16,1,0.3,1) both;
 }
 
 .hero p {
+  position: relative;
+  z-index: 1;
   color: var(--text-muted);
-  margin-bottom: 1.75rem;
-  font-size: 1.05rem;
+  margin-bottom: 2rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  animation: fade-up 0.6s 0.08s cubic-bezier(0.16,1,0.3,1) both;
 }
 
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Search bar ───────────────────────────────────────────────────── */
+
 .search-bar {
+  position: relative;
+  z-index: 1;
   display: flex;
-  gap: .75rem;
-  max-width: 560px;
+  gap: 0.5rem;
+  max-width: 520px;
   margin: 0 auto;
+  animation: fade-up 0.6s 0.15s cubic-bezier(0.16,1,0.3,1) both;
 }
 
 .search-bar input {
   flex: 1;
-  padding: .75rem 1rem;
-  border-radius: 8px;
-  border: 1px solid var(--border);
+  padding: 0.8rem 1.1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
   background: var(--bg-card);
   color: var(--text);
-  font-size: 1rem;
+  font-size: 0.95rem;
+  font-family: 'DM Sans', sans-serif;
   outline: none;
-  transition: border-color .2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .search-bar input:focus {
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.search-bar input::placeholder { color: var(--text-muted); }
+
+/* ─── Recomendaciones ──────────────────────────────────────────────── */
+
+.reco-section {
+  margin-bottom: 0.75rem;
+}
+
+.reco-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.reco-genre-chip {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.6rem;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }

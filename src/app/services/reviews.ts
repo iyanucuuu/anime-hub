@@ -6,6 +6,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { AuthService } from './auth';
+import { ActivityService } from './activity';
 import { AnimeImages } from '../models/anime.models';
 
 // ─── Modelo ──────────────────────────────────────────────────────────────────
@@ -40,6 +41,7 @@ export interface ReviewPayload {
 @Injectable({ providedIn: 'root' })
 export class ReviewsService {
   private auth = inject(AuthService);
+  private activity = inject(ActivityService);
 
   /** Reseñas del anime que se está consultando actualmente (se rellena al llamar a watchAnimeReviews). */
   readonly animeReviews = signal<Review[]>([]);
@@ -114,6 +116,14 @@ export class ReviewsService {
     };
 
     await setDoc(doc(db, 'reviews', id), review);
+
+    // Registrar en el feed de actividad
+    this.activity.log('review', {
+      mal_id: payload.mal_id,
+      animeTitle: payload.animeTitle,
+      animeImage: payload.animeImages?.jpg?.image_url ?? '',
+      rating: payload.rating,
+    }).catch(() => {});
   }
 
   async deleteReview(mal_id: number): Promise<void> {

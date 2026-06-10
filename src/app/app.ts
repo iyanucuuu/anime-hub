@@ -1,6 +1,7 @@
-import { Component, Signal } from '@angular/core';
+import { Component, Signal, inject } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { Navbar } from './components/navbar/navbar';
+import { ThemeService } from './services/theme';
 import { filter, map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 
@@ -12,6 +13,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 })
 export class App {
   showNav: Signal<boolean>;
+  // Inicializar ThemeService en el root para aplicar el tema desde el arranque
+  private _theme = inject(ThemeService);
 
   constructor(private router: Router) {
     this.showNav = toSignal(

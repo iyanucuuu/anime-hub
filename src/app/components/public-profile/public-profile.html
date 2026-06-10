@@ -1,0 +1,136 @@
+@if (loading()) {
+  <div class="profile-loading">
+    <div class="skeleton-avatar"></div>
+    <div class="skeleton-name"></div>
+    <div class="skeleton-bio"></div>
+  </div>
+} @else if (notFound()) {
+  <div class="profile-not-found">
+    <span>🔍</span>
+    <p>Perfil no encontrado</p>
+    <a routerLink="/home" class="btn btn-outline">← Volver al inicio</a>
+  </div>
+} @else if (user(); as u) {
+  <!-- ─── CABECERA ───────────────────────────────────────────────────── -->
+  <div class="profile-header">
+    <div class="profile-banner"></div>
+    <div class="profile-avatar-wrap">
+      <img
+        [src]="u.photoURL || avatarFallback(u.displayName)"
+        [alt]="u.displayName"
+        class="profile-avatar"
+        referrerpolicy="no-referrer"
+        (error)="onAvatarError($event, u.displayName)"
+      />
+    </div>
+
+    <div class="profile-meta">
+      <div class="profile-name-row">
+        <h1 class="profile-name">{{ u.displayName }}</h1>
+        @if (isOwnProfile) {
+          <a routerLink="/account" class="btn btn-outline btn-sm">Editar perfil</a>
+        } @else if (auth.user()) {
+          @if (friendStatus === 'none') {
+            <button class="btn btn-primary btn-sm" (click)="addFriend()">+ Añadir amigo</button>
+          } @else if (friendStatus === 'pending-sent') {
+            <span class="friend-chip pending">Solicitud enviada</span>
+          } @else if (friendStatus === 'friends') {
+            <span class="friend-chip friends">✓ Amigos</span>
+          }
+        }
+        <button class="btn btn-outline btn-sm" (click)="copyLink()" title="Copiar enlace al perfil">🔗 Compartir</button>
+      </div>
+
+      @if (u.bio) {
+        <p class="profile-bio">{{ u.bio }}</p>
+      }
+
+      <div class="profile-details">
+        @if (u.country) { <span class="detail-chip">🌍 {{ u.country }}</span> }
+        @if (u.favoriteGenre) { <span class="detail-chip">🎭 {{ u.favoriteGenre }}</span> }
+        @if (u.favoriteAnime) { <span class="detail-chip">❤️ {{ u.favoriteAnime }}</span> }
+        <span class="detail-chip">📅 Miembro desde {{ joinDate(u.joinedAt) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── STATS ─────────────────────────────────────────────────────── -->
+  <div class="profile-stats">
+    <div class="stat-box">
+      <span class="stat-num">{{ favs().length }}</span>
+      <span class="stat-lbl">Favoritos</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-num">{{ watched().length }}</span>
+      <span class="stat-lbl">Vistos</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-num">{{ watching().length }}</span>
+      <span class="stat-lbl">Viendo</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-num">{{ pending().length }}</span>
+      <span class="stat-lbl">Pendientes</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-num">{{ totalAnime }}</span>
+      <span class="stat-lbl">Total únicos</span>
+    </div>
+  </div>
+
+  <!-- ─── TABS ──────────────────────────────────────────────────────── -->
+  <div class="profile-tabs">
+    <button class="ptab" [class.active]="activeTab() === 'favoritos'"  (click)="activeTab.set('favoritos')">
+      ❤️ Favoritos <span class="ptab-count">{{ favs().length }}</span>
+    </button>
+    <button class="ptab" [class.active]="activeTab() === 'vistos'"     (click)="activeTab.set('vistos')">
+      ✅ Vistos <span class="ptab-count">{{ watched().length }}</span>
+    </button>
+    <button class="ptab" [class.active]="activeTab() === 'viendo'"     (click)="activeTab.set('viendo')">
+      ▶️ Viendo <span class="ptab-count">{{ watching().length }}</span>
+    </button>
+    <button class="ptab" [class.active]="activeTab() === 'pendientes'" (click)="activeTab.set('pendientes')">
+      🕐 Pendientes <span class="ptab-count">{{ pending().length }}</span>
+    </button>
+  </div>
+
+  <!-- ─── GRIDS ─────────────────────────────────────────────────────── -->
+  <div class="profile-grid">
+    @if (activeTab() === 'favoritos') {
+      @if (favs().length === 0) { <p class="grid-empty">Sin favoritos aún</p> }
+      @for (a of favs(); track a.mal_id) {
+        <a [routerLink]="['/anime', a.mal_id]" class="mini-card">
+          <img [src]="a.images?.jpg?.image_url" [alt]="a.title" loading="lazy" />
+          <p class="mini-title">{{ a.title }}</p>
+        </a>
+      }
+    }
+    @if (activeTab() === 'vistos') {
+      @if (watched().length === 0) { <p class="grid-empty">Sin vistos aún</p> }
+      @for (a of watched(); track a.mal_id) {
+        <a [routerLink]="['/anime', a.mal_id]" class="mini-card">
+          <img [src]="a.images?.jpg?.image_url" [alt]="a.title" loading="lazy" />
+          <p class="mini-title">{{ a.title }}</p>
+        </a>
+      }
+    }
+    @if (activeTab() === 'viendo') {
+      @if (watching().length === 0) { <p class="grid-empty">No está viendo nada ahora</p> }
+      @for (a of watching(); track a.mal_id) {
+        <a [routerLink]="['/anime', a.mal_id]" class="mini-card">
+          <img [src]="a.images?.jpg?.image_url" [alt]="a.title" loading="lazy" />
+          <p class="mini-title">{{ a.title }}</p>
+        </a>
+      }
+    }
+    @if (activeTab() === 'pendientes') {
+      @if (pending().length === 0) { <p class="grid-empty">Sin pendientes</p> }
+      @for (a of pending(); track a.mal_id) {
+        <a [routerLink]="['/anime', a.mal_id]" class="mini-card">
+          <img [src]="a.images?.jpg?.image_url" [alt]="a.title" loading="lazy" />
+          <p class="mini-title">{{ a.title }}</p>
+        </a>
+      }
+    }
+  </div>
+}
