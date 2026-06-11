@@ -32,9 +32,10 @@ export class PublicProfile implements OnInit {
   friendsService  = inject(FriendsService);
   private seo     = inject(SeoService);
 
-  user     = signal<PublicUser | null>(null);
-  loading  = signal(true);
-  notFound = signal(false);
+  user      = signal<PublicUser | null>(null);
+  loading   = signal(true);
+  notFound  = signal(false);
+  loadError = signal(false);
 
   activeTab = signal<ProfileTab>('favoritos');
   favs      = signal<AnimeUserPayload[]>([]);
@@ -71,7 +72,7 @@ export class PublicProfile implements OnInit {
       this.watching.set(watchingSnap.docs.map(d => d.data() as AnimeUserPayload));
       this.pending.set(pendingSnap.docs.map(d => d.data() as AnimeUserPayload));
     } catch {
-      this.notFound.set(true);
+      this.loadError.set(true);
     } finally {
       this.loading.set(false);
     }

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { FriendsService, UserProfile } from '../../services/friends';
 import { AuthService } from '../../services/auth';
+import { AnimeUserPayload } from '../../models/anime.models';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
 
@@ -56,10 +57,10 @@ export class FriendsPage {
   selectedFriend = signal<ExtendedUserProfile | null>(null);
   profileTab = signal<ProfileTab>('favoritos');
   friendDataLoading = signal(false);
-  friendFavs    = signal<any[]>([]);
-  friendWatched = signal<any[]>([]);
-  friendWatching = signal<any[]>([]);
-  friendPending = signal<any[]>([]);
+  friendFavs     = signal<AnimeUserPayload[]>([]);
+  friendWatched  = signal<AnimeUserPayload[]>([]);
+  friendWatching = signal<AnimeUserPayload[]>([]);
+  friendPending  = signal<AnimeUserPayload[]>([]);
 
   async openProfile(f: ExtendedUserProfile) {
     this.selectedFriend.set(f);

@@ -29,14 +29,16 @@ service cloud.firestore {
     // Cualquier usuario autenticado puede leer actividades (necesario para el feed).
     // Solo el propio usuario puede escribir su actividad.
     match /activities/{eventId} {
-      allow read:  if isAuth();
-      allow write: if isAuth() && request.auth.uid == resource.data.uid
-                   || isAuth() && request.auth.uid == request.resource.data.uid;
+      allow read:   if isAuth();
+      allow create: if isAuth() && request.resource.data.uid == request.auth.uid;
+      allow update: if isAuth() && resource.data.uid == request.auth.uid;
+      allow delete: if isAuth() && resource.data.uid == request.auth.uid;
     }
 
     // ── Amigos ────────────────────────────────────────────────────────────────
     match /friendRequests/{docId} {
       allow read:  if isAuth() && (
+        resource == null ||
         resource.data.fromUid == request.auth.uid ||
         resource.data.toUid   == request.auth.uid
       );
