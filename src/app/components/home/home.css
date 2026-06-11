@@ -1,13 +1,19 @@
-/* ─── Hero search ──────────────────────────────────────────────────── */
+/* ─── Hero ──────────────────────────────────────────────────────────── */
 
 .hero {
   text-align: center;
-  padding: 4rem 1rem 3.25rem;
+  padding: 5.5rem 1rem 4.5rem;
   position: relative;
   overflow: hidden;
+  /* Spotlight from top */
+  background:
+    radial-gradient(ellipse 70% 50% at 50% -5%,
+      color-mix(in srgb, var(--accent) 20%, transparent) 0%,
+      transparent 65%);
+  margin: 0 -1.25rem 2.5rem;
 }
 
-/* Ghost watermark text behind everything */
+/* Giant ghost watermark */
 .hero::before {
   content: 'ANIME';
   position: absolute;
@@ -15,47 +21,108 @@
   left: 50%;
   transform: translate(-50%, -58%);
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(6rem, 18vw, 14rem);
+  font-size: clamp(8rem, 22vw, 16rem);
   font-weight: 400;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   color: transparent;
-  -webkit-text-stroke: 1px color-mix(in srgb, var(--accent) 9%, transparent);
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--accent) 11%, transparent);
   pointer-events: none;
   white-space: nowrap;
-  z-index: 0;
   user-select: none;
 }
+
+/* Accent line at the bottom */
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 35%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--accent) 50%,
+    transparent 100%);
+}
+
+/* ── Live badge ─────────────────────────────────────────── */
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  border-radius: 4px;
+  padding: 0.28rem 0.75rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+  animation: fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.35; transform: scale(0.65); }
+}
+
+/* ── Hero text ──────────────────────────────────────────── */
 
 .hero h1 {
   position: relative;
   z-index: 1;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-size: clamp(3rem, 7.5vw, 5.5rem);
   font-weight: 400;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   color: var(--text);
-  margin-bottom: 0.5rem;
-  line-height: 1;
-  animation: fade-up 0.6s cubic-bezier(0.16,1,0.3,1) both;
+  line-height: 1.02;
+  margin-bottom: 0.7rem;
+  animation: fade-up 0.55s 0.06s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-accent {
+  background: linear-gradient(90deg,
+    var(--accent) 0%,
+    color-mix(in srgb, var(--accent) 55%, var(--accent2)) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .hero p {
   position: relative;
   z-index: 1;
   color: var(--text-muted);
-  margin-bottom: 2rem;
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
+  margin-bottom: 2.25rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  animation: fade-up 0.6s 0.08s cubic-bezier(0.16,1,0.3,1) both;
+  animation: fade-up 0.55s 0.12s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(18px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ─── Search bar ───────────────────────────────────────────────────── */
+/* ─── Search bar ────────────────────────────────────────────────────── */
 
 .search-bar {
   position: relative;
@@ -64,15 +131,16 @@
   gap: 0.5rem;
   max-width: 520px;
   margin: 0 auto;
-  animation: fade-up 0.6s 0.15s cubic-bezier(0.16,1,0.3,1) both;
+  animation: fade-up 0.55s 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .search-bar input {
   flex: 1;
-  padding: 0.8rem 1.1rem;
+  padding: 0.85rem 1.2rem;
   border-radius: var(--radius);
   border: 1px solid var(--border-light);
-  background: var(--bg-card);
+  background: color-mix(in srgb, var(--bg-card) 90%, transparent);
+  backdrop-filter: blur(8px);
   color: var(--text);
   font-size: 0.95rem;
   font-family: 'DM Sans', sans-serif;
@@ -82,16 +150,107 @@
 
 .search-bar input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent),
+    0 0 24px color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 .search-bar input::placeholder { color: var(--text-muted); }
 
-/* ─── Recomendaciones ──────────────────────────────────────────────── */
+/* ─── Stats bar ─────────────────────────────────────────────────────── */
 
-.reco-section {
-  margin-bottom: 0.75rem;
+.stats-bar {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 0;
+  margin-bottom: 2.5rem;
+  overflow: hidden;
+  animation: fade-up 0.55s 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 1.25rem 2.5rem;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.18s;
+  flex: 1;
+}
+
+.stat-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.stat-item:hover .stat-icon { color: var(--accent); }
+.stat-item:hover .stat-value { color: var(--accent); }
+
+.stat-sep {
+  width: 1px;
+  background: var(--border);
+  margin: 0.75rem 0;
+  flex-shrink: 0;
+}
+
+.stat-icon {
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1;
+  transition: color 0.18s;
+}
+
+.stat-value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.2rem;
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: 0.04em;
+  transition: color 0.18s;
+}
+
+.stat-label {
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ─── Sections ──────────────────────────────────────────────────────── */
+
+.home-section {
+  margin-bottom: 3rem;
+}
+
+/* Season label chip next to title */
+.season-title {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.season-chip {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent3);
+  background: color-mix(in srgb, var(--accent3) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent3) 25%, transparent);
+  border-radius: 4px;
+  padding: 0.22rem 0.6rem;
+}
+
+/* ─── Recomendaciones ───────────────────────────────────────────────── */
 
 .reco-title {
   display: flex;
@@ -101,13 +260,34 @@
 }
 
 .reco-genre-chip {
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 700;
   padding: 0.15rem 0.6rem;
   border-radius: 4px;
   background: color-mix(in srgb, var(--accent) 10%, transparent);
   color: var(--accent);
-  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
-  letter-spacing: 0.06em;
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+/* ─── Mobile ────────────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .hero {
+    margin: 0 -1.25rem 1.5rem;
+    padding: 4rem 1rem 3.5rem;
+  }
+
+  .stat-item {
+    padding: 1rem 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.7rem;
+  }
+
+  .stat-label {
+    font-size: 0.58rem;
+  }
 }
