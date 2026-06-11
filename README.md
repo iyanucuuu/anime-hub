@@ -6,6 +6,8 @@ Aplicación web para descubrir, buscar y organizar anime. Permite explorar los e
 ![Firebase](https://img.shields.io/badge/Firebase-12-ffca28?logo=firebase)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6?logo=typescript)
 
+🌐 **[Ver en vivo → anime-hub-fa95f.web.app](https://anime-hub-fa95f.web.app)**
+
 ---
 
 ## ✨ Funcionalidades
