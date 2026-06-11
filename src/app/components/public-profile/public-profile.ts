@@ -105,7 +105,7 @@ export class PublicProfile implements OnInit {
   }
 
   avatarFallback(name: string): string {
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'U')}&background=7c4dff&color=fff&bold=true&size=128`;
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'U')}&background=FF2D55&color=fff&bold=true&size=128`;
   }
 
   onAvatarError(ev: Event, name: string) {

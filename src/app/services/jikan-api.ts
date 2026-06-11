@@ -117,4 +117,7 @@ export class JikanApi {
       shareReplay({ bufferSize: 1, refCount: false })
     );
 
-    this.cache.set(url, { expiresAt: now + ttlMs, observable$ 
+    this.cache.set(url, { expiresAt: now + ttlMs, observable$ });
+    return observable$;
+  }
+}

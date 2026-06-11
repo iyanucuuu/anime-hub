@@ -1,6 +1,6 @@
 <nav class="navbar">
   <a routerLink="/" class="brand">
-    <span>⛩</span>
+    <span class="brand-mark">▲</span>
     <span>AnimeHub</span>
   </a>
   <div class="nav-links">
@@ -19,27 +19,33 @@
   </div>
 
   <button class="btn-theme" (click)="theme.toggle()" [title]="theme.theme() === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
-    {{ theme.theme() === 'dark' ? '☀️' : '🌙' }}
+    @if (theme.theme() === 'dark') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+    } @else {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    }
   </button>
 
-  @if (auth.user(); as user) {
-    <div class="user-menu">
-      <a [routerLink]="['/u', user.uid]" class="avatar-link">
-        <img
-          [src]="user.photoURL || avatarFallback(user.displayName)"
-          [alt]="user.displayName || ''"
-          class="avatar"
-          referrerpolicy="no-referrer"
-          (error)="onAvatarError($event, user.displayName)"
-        />
-      </a>
-      <span class="username">{{ user.displayName }}</span>
-      <button class="btn-logout" (click)="auth.logout()">Salir</button>
+  @if (auth.user()) {
+    <div class="nav-user">
+      <img
+        [src]="auth.user()!.photoURL || avatarFallback(auth.user()!.displayName)"
+        [alt]="auth.user()!.displayName || ''"
+        class="nav-avatar"
+        referrerpolicy="no-referrer"
+        (error)="onAvatarError($event, auth.user()!.displayName)"
+      />
+      <button class="btn btn-ghost btn-sm" (click)="auth.logout()">Salir</button>
     </div>
   } @else {
-    <button class="btn-login" (click)="auth.loginWithGoogle()">
-      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" />
-      Entrar con Google
-    </button>
+    <button class="btn btn-primary btn-sm" (click)="auth.loginWithGoogle()">Entrar</button>
   }
 </nav>

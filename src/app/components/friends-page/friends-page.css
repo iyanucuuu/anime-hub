@@ -23,7 +23,8 @@
 .fp-hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #1a0a3e 0%, #2d1060 60%, #1a0a3e 100%);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   z-index: 0;
 }
 
@@ -57,16 +58,17 @@
 }
 
 .fp-hero-title {
-  font-size: 2.2rem;
-  font-weight: 900;
-  color: #fff;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 400;
+  color: var(--text);
   margin: 0 0 .35rem;
-  letter-spacing: -.5px;
+  letter-spacing: .05em;
 }
 
 .fp-hero-sub {
   font-size: .92rem;
-  color: rgba(255,255,255,.55);
+  color: var(--text-muted);
   margin: 0;
 }
 
@@ -78,20 +80,20 @@
 
 .fp-hstat {
   text-align: center;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.15);
+  background: var(--bg);
+  border: 1px solid var(--border-light);
   border-radius: 14px;
   padding: .65rem 1.25rem;
   min-width: 72px;
 }
 
-.fp-hstat.notif { background: rgba(124,77,255,.25); border-color: rgba(124,77,255,.5); }
+.fp-hstat.notif { background: color-mix(in srgb, var(--accent) 18%, transparent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
 
 .fp-hstat-num {
   display: block;
   font-size: 1.6rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text);
   line-height: 1;
 }
 
@@ -99,7 +101,7 @@
   display: block;
   font-size: .7rem;
   font-weight: 600;
-  color: rgba(255,255,255,.5);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: .05em;
   margin-top: .25rem;
@@ -118,27 +120,26 @@
   display: flex;
   align-items: center;
   gap: .75rem;
-  background: rgba(255,255,255,.09);
-  border: 1px solid rgba(255,255,255,.18);
+  background: var(--bg);
+  border: 1px solid var(--border-light);
   border-radius: 14px;
   padding: .7rem 1rem;
-  backdrop-filter: blur(6px);
   transition: border-color .2s;
 }
 
-.fp-search-bar:focus-within { border-color: rgba(255,255,255,.45); }
+.fp-search-bar:focus-within { border-color: var(--accent); }
 
 .fp-search-input {
   flex: 1;
   background: none;
   border: none;
   outline: none;
-  color: #fff;
+  color: var(--text);
   font-size: .95rem;
   font-family: inherit;
 }
 
-.fp-search-input::placeholder { color: rgba(255,255,255,.4); }
+.fp-search-input::placeholder { color: var(--text-muted); }
 
 .fp-search-btn {
   background: var(--accent);
@@ -158,7 +159,7 @@
 
 .fp-search-empty {
   font-size: .88rem;
-  color: rgba(255,255,255,.5);
+  color: var(--text-muted);
   text-align: center;
   padding: .5rem 0;
 }
@@ -174,21 +175,21 @@
   display: flex;
   align-items: center;
   gap: .85rem;
-  background: rgba(255,255,255,.07);
-  border: 1px solid rgba(255,255,255,.12);
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: .65rem .9rem;
-  transition: background .15s;
+  transition: background .15s, border-color .15s;
 }
 
-.fp-result-card:hover { background: rgba(255,255,255,.11); }
+.fp-result-card:hover { background: var(--bg-card-hover); border-color: var(--border-light); }
 
 .fp-result-avatar {
   width: 42px; height: 42px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
-  border: 2px solid rgba(255,255,255,.2);
+  border: 2px solid var(--border-light);
 }
 
 .fp-result-info { flex: 1; min-width: 0; }
@@ -197,7 +198,7 @@
   display: block;
   font-weight: 700;
   font-size: .9rem;
-  color: #fff;
+  color: var(--text);
   margin-bottom: .25rem;
 }
 
@@ -205,9 +206,9 @@
 
 .fp-chip {
   font-size: .7rem;
-  color: rgba(255,255,255,.65);
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.15);
+  color: var(--text-muted);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 20px;
   padding: .1rem .5rem;
 }
@@ -223,7 +224,7 @@
 
 .fp-pill.friends  { background: rgba(0,200,83,.18); color: #00e676; }
 .fp-pill.pending  { background: rgba(255,152,0,.18); color: #ffa726; }
-.fp-pill.received { background: rgba(124,77,255,.25); color: #ce93d8; }
+.fp-pill.received { background: color-mix(in srgb, var(--accent3) 18%, transparent); color: var(--accent3); }
 
 .fp-add-btn {
   background: var(--accent);

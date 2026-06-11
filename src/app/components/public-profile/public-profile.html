@@ -6,7 +6,7 @@
   </div>
 } @else if (notFound()) {
   <div class="profile-not-found">
-    <span>🔍</span>
+    <span>⌕</span>
     <p>Perfil no encontrado</p>
     <a routerLink="/home" class="btn btn-outline">← Volver al inicio</a>
   </div>
@@ -38,7 +38,10 @@
             <span class="friend-chip friends">✓ Amigos</span>
           }
         }
-        <button class="btn btn-outline btn-sm" (click)="copyLink()" title="Copiar enlace al perfil">🔗 Compartir</button>
+        <button class="btn btn-outline btn-sm" (click)="copyLink()" title="Copiar enlace al perfil">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Compartir
+        </button>
       </div>
 
       @if (u.bio) {
@@ -46,10 +49,10 @@
       }
 
       <div class="profile-details">
-        @if (u.country) { <span class="detail-chip">🌍 {{ u.country }}</span> }
-        @if (u.favoriteGenre) { <span class="detail-chip">🎭 {{ u.favoriteGenre }}</span> }
-        @if (u.favoriteAnime) { <span class="detail-chip">❤️ {{ u.favoriteAnime }}</span> }
-        <span class="detail-chip">📅 Miembro desde {{ joinDate(u.joinedAt) }}</span>
+        @if (u.country) { <span class="detail-chip">◉ {{ u.country }}</span> }
+        @if (u.favoriteGenre) { <span class="detail-chip">◈ {{ u.favoriteGenre }}</span> }
+        @if (u.favoriteAnime) { <span class="detail-chip">♥ {{ u.favoriteAnime }}</span> }
+        <span class="detail-chip">Miembro desde {{ joinDate(u.joinedAt) }}</span>
       </div>
     </div>
   </div>
@@ -81,16 +84,16 @@
   <!-- ─── TABS ──────────────────────────────────────────────────────── -->
   <div class="profile-tabs">
     <button class="ptab" [class.active]="activeTab() === 'favoritos'"  (click)="activeTab.set('favoritos')">
-      ❤️ Favoritos <span class="ptab-count">{{ favs().length }}</span>
+      ♥ Favoritos <span class="ptab-count">{{ favs().length }}</span>
     </button>
     <button class="ptab" [class.active]="activeTab() === 'vistos'"     (click)="activeTab.set('vistos')">
-      ✅ Vistos <span class="ptab-count">{{ watched().length }}</span>
+      ✓ Vistos <span class="ptab-count">{{ watched().length }}</span>
     </button>
     <button class="ptab" [class.active]="activeTab() === 'viendo'"     (click)="activeTab.set('viendo')">
-      ▶️ Viendo <span class="ptab-count">{{ watching().length }}</span>
+      ▶ Viendo <span class="ptab-count">{{ watching().length }}</span>
     </button>
     <button class="ptab" [class.active]="activeTab() === 'pendientes'" (click)="activeTab.set('pendientes')">
-      🕐 Pendientes <span class="ptab-count">{{ pending().length }}</span>
+      ○ Pendientes <span class="ptab-count">{{ pending().length }}</span>
     </button>
   </div>
 

@@ -127,4 +127,6 @@ export interface AnimeUserPayload {
   status: string;
   broadcast?: BroadcastInfo;
   episodes?: number | null;
-  
+  /** Nombres de géneros guardados al añadir a una lista — usado por RecommendationsService */
+  genreNames?: string[];
+}

@@ -153,12 +153,21 @@ export class Account {
   async saveProfile() {
     const uid = this.auth.user()?.uid;
     if (!uid || this.editSaving()) return;
+
+    // Validación de longitud
+    if (this.editBio().length > 300 ||
+        this.editCountry().length > 60 ||
+        this.editFavoriteAnime().length > 100 ||
+        this.editFavoriteGenre().length > 60) {
+      return; // El HTML ya muestra maxlength, esto es una defensa extra
+    }
+
     this.editSaving.set(true);
     await setDoc(doc(db, 'users', uid), {
-      bio: this.editBio().trim(),
-      country: this.editCountry().trim(),
-      favoriteAnime: this.editFavoriteAnime().trim(),
-      favoriteGenre: this.editFavoriteGenre().trim(),
+      bio: this.editBio().trim().slice(0, 300),
+      country: this.editCountry().trim().slice(0, 60),
+      favoriteAnime: this.editFavoriteAnime().trim().slice(0, 100),
+      favoriteGenre: this.editFavoriteGenre().trim().slice(0, 60),
     }, { merge: true });
     this.extendedProfile.set({
       bio: this.editBio().trim(),

@@ -18,8 +18,11 @@ service cloud.firestore {
     }
 
     // ── Listas de usuario (favoritos, vistos, pendientes, viendo) ─────────────
+    // Cualquier usuario autenticado puede leer las listas (perfiles públicos y vistas de amigos).
+    // Solo el propietario puede escribir en sus propias listas.
     match /users/{uid}/{list}/{docId} {
-      allow read, write: if isOwner(uid);
+      allow read:  if isAuth();
+      allow write: if isOwner(uid);
     }
 
     // ── Actividad global del feed ─────────────────────────────────────────────
@@ -34,13 +37,13 @@ service cloud.firestore {
     // ── Amigos ────────────────────────────────────────────────────────────────
     match /friendRequests/{docId} {
       allow read:  if isAuth() && (
-        resource.data.from == request.auth.uid ||
-        resource.data.to   == request.auth.uid
+        resource.data.fromUid == request.auth.uid ||
+        resource.data.toUid   == request.auth.uid
       );
-      allow create: if isAuth() && request.resource.data.from == request.auth.uid;
+      allow create: if isAuth() && request.resource.data.fromUid == request.auth.uid;
       allow update, delete: if isAuth() && (
-        resource.data.from == request.auth.uid ||
-        resource.data.to   == request.auth.uid
+        resource.data.fromUid == request.auth.uid ||
+        resource.data.toUid   == request.auth.uid
       );
     }
 

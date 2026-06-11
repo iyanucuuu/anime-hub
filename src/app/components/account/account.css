@@ -1022,8 +1022,9 @@
 }
 
 .bubble-icon {
-  font-size: 3.5rem;
+  color: var(--accent);
   filter: drop-shadow(0 0 20px color-mix(in srgb, var(--accent) 55%, transparent));
+  display: block;
 }
 
 .bubble h2 {

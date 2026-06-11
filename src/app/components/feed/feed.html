@@ -8,12 +8,12 @@
   </div>
 } @else if (!auth.user()) {
   <div class="feed-empty">
-    <span>🔐</span>
+    <span class="feed-empty-icon">⊠</span>
     <p>Inicia sesión para ver el feed de tus amigos</p>
   </div>
 } @else if (events().length === 0) {
   <div class="feed-empty">
-    <span>👀</span>
+    <span class="feed-empty-icon">⌕</span>
     <p>Aún no hay actividad de tus amigos</p>
     <small>Cuando tus amigos añadan anime a sus listas o escriban reseñas, aparecerá aquí.</small>
     <a routerLink="/amigos" class="btn btn-primary">Buscar amigos</a>

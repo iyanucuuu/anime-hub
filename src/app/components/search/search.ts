@@ -9,6 +9,7 @@ import { AnimeCardComponent } from '../anime-card/anime-card';
 import { SkeletonCard } from '../skeleton-card/skeleton-card';
 import { dedupByFranchise } from '../../services/dedup';
 import { Anime } from '../../models/anime.models';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-search',
@@ -21,6 +22,7 @@ export class Search implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  auth = inject(AuthService);
 
   private search$ = new Subject<{ query: string; type: 'tv' | 'movie' | 'all' }>();
 

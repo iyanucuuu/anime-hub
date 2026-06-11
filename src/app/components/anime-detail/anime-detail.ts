@@ -157,11 +157,17 @@ export class AnimeDetail implements OnInit, OnDestroy {
     this.showReviewForm.set(true);
   }
 
+  readonly REVIEW_MAX_LENGTH = 1000;
+
   async submitReview() {
     const a = this.anime();
     if (!a || this.reviewSubmitting()) return;
     if (!this.reviewText().trim()) {
       this.reviewError.set('Escribe algo en tu reseña antes de publicar.');
+      return;
+    }
+    if (this.reviewText().length > this.REVIEW_MAX_LENGTH) {
+      this.reviewError.set(`La reseña no puede superar los ${this.REVIEW_MAX_LENGTH} caracteres.`);
       return;
     }
     this.reviewSubmitting.set(true);
@@ -200,8 +206,15 @@ export class AnimeDetail implements OnInit, OnDestroy {
     return 'Obra maestra';
   }
 
-  avatarFallback(name?: string | null): string {
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name?.trim() || 'U')}&background=7c4dff&color=fff&bold=true`;
+  goBack() {
+    this.location.back();
   }
 
- 
+  onAvatarError(event: Event, name?: string | null) {
+    (event.target as HTMLImageElement).src = this.avatarFallback(name);
+  }
+
+  avatarFallback(name?: string | null): string {
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name?.trim() || 'U')}&background=FF2D55&color=fff&bold=true`;
+  }
+}

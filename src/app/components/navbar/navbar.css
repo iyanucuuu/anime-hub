@@ -30,6 +30,12 @@
   color: var(--accent);
 }
 
+.brand-mark {
+  font-size: 1rem;
+  color: var(--accent) !important;
+  line-height: 1;
+}
+
 .brand::after {
   content: '';
   position: absolute;

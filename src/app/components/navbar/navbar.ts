@@ -22,7 +22,7 @@ export class Navbar {
   /** Avatar de respaldo con las iniciales del usuario. */
   avatarFallback(name?: string | null): string {
     const initials = encodeURIComponent(name?.trim() || 'U');
-    return `https://ui-avatars.com/api/?name=${initials}&background=7c4dff&color=fff&bold=true`;
+    return `https://ui-avatars.com/api/?name=${initials}&background=FF2D55&color=fff&bold=true`;
   }
 
   /** Las fotos de perfil de Google a veces fallan al cargar (bloqueo por referrer); si pasa, usamos el respaldo. */

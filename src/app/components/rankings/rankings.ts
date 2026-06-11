@@ -6,6 +6,7 @@ import { AnimeCardComponent } from '../anime-card/anime-card';
 import { SkeletonCard } from '../skeleton-card/skeleton-card';
 import { dedupByFranchise } from '../../services/dedup';
 import { Anime } from '../../models/anime.models';
+import { AuthService } from '../../services/auth';
 
 const GENRES = [
   { id: 1,  name: 'Action' },
@@ -34,6 +35,7 @@ export class Rankings implements OnInit {
   private api = inject(JikanApi);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  auth = inject(AuthService);
 
   topAnime = signal<Anime[]>([]);
   loading = signal(true);

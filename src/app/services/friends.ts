@@ -1,7 +1,7 @@
 import { Injectable, signal, effect, inject, computed } from '@angular/core';
 import {
   collection, doc, setDoc, deleteDoc, updateDoc,
-  onSnapshot, query, where, orderBy, limit,
+  onSnapshot, query, where, orderBy,
   getDoc, getDocs, Query, DocumentData,
 } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -40,8 +40,18 @@ export class FriendsService {
   readonly incomingRequests = signal<FriendRequest[]>([]);
   /** Solicitudes que yo he enviado y aún no han sido aceptadas. */
   readonly outgoingRequests = signal<FriendRequest[]>([]);
-  /** Amigos aceptados (lista de perfiles completos). */
-  readonly friends = signal<UserProfile[]>([]);
+
+  // Amigos separados por dirección para evitar race conditions
+  private _sentFriends     = signal<UserProfile[]>([]);
+  private _receivedFriends = signal<UserProfile[]>([]);
+
+  /** Amigos aceptados (combinación deduplicada de enviados + recibidos). */
+  readonly friends = computed<UserProfile[]>(() => {
+    const all = [...this._sentFriends(), ...this._receivedFriends()];
+    const seen = new Set<string>();
+    return all.filter(f => seen.has(f.uid) ? false : (seen.add(f.uid), true));
+  });
+
   /** Set de UIDs de amigos aceptados — útil para lookups rápidos. */
   readonly friendIds = computed(() => new Set(this.friends().map(f => f.uid)));
 
@@ -56,7 +66,8 @@ export class FriendsService {
       if (!u) {
         this.incomingRequests.set([]);
         this.outgoingRequests.set([]);
-        this.friends.set([]);
+        this._sentFriends.set([]);
+        this._receivedFriends.set([]);
         return;
       }
 
@@ -93,12 +104,9 @@ export class FriendsService {
           where('status', '==', 'accepted'),
         ),
         async snap => {
-          const sentFriends = snap.docs.map(d => d.data() as FriendRequest);
-          const profiles = await this.fetchProfiles(sentFriends.map(r => r.toUid));
-          this.friends.update(prev => {
-            const existing = prev.filter(p => sentFriends.every(r => r.toUid !== p.uid));
-            return [...existing, ...profiles];
-          });
+          const uids = snap.docs.map(d => (d.data() as FriendRequest).toUid);
+          const profiles = await this.fetchProfiles(uids);
+          this._sentFriends.set(profiles);
         },
         onErr,
       ));
@@ -111,12 +119,9 @@ export class FriendsService {
           where('status', '==', 'accepted'),
         ),
         async snap => {
-          const receivedFriends = snap.docs.map(d => d.data() as FriendRequest);
-          const profiles = await this.fetchProfiles(receivedFriends.map(r => r.fromUid));
-          this.friends.update(prev => {
-            const existing = prev.filter(p => receivedFriends.every(r => r.fromUid !== p.uid));
-            return [...existing, ...profiles];
-          });
+          const uids = snap.docs.map(d => (d.data() as FriendRequest).fromUid);
+          const profiles = await this.fetchProfiles(uids);
+          this._receivedFriends.set(profiles);
         },
         onErr,
       ));
@@ -161,15 +166,14 @@ export class FriendsService {
   async removeFriend(friendUid: string): Promise<void> {
     const myUid = this.auth.user()?.uid;
     if (!myUid) return;
-    // Puede estar en cualquiera de las dos direcciones
     await deleteDoc(doc(db, 'friendRequests', `${myUid}_${friendUid}`)).catch(() => {});
     await deleteDoc(doc(db, 'friendRequests', `${friendUid}_${myUid}`)).catch(() => {});
   }
 
   /** Busca usuarios por nombre (hasta 10 resultados). */
-  async searchUsers(query: string): Promise<UserProfile[]> {
-    if (!query.trim()) return [];
-    const q = query.trim().toLowerCase();
+  async searchUsers(searchQuery: string): Promise<UserProfile[]> {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.trim().toLowerCase();
     const snap = await getDocs(
       collection(db, 'users') as unknown as Query<DocumentData>,
     );
@@ -192,7 +196,6 @@ export class FriendsService {
 
   // ─── Perfil público ───────────────────────────────────────────────────────
 
-  /** Escribe/actualiza el perfil público del usuario al iniciar sesión. */
   async upsertMyProfile(): Promise<void> {
     const u = this.auth.user();
     if (!u) return;
@@ -211,6 +214,6 @@ export class FriendsService {
 
   private async fetchProfiles(uids: string[]): Promise<UserProfile[]> {
     const results = await Promise.all(uids.map(uid => this.getProfile(uid)));
-    return results.filter(Boolean) as UserProfile[];
+    return results.filter((p): p is UserProfile => p !== null);
   }
 }

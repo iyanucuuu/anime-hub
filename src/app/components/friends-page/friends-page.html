@@ -42,7 +42,7 @@
     <!-- Búsqueda dentro del hero -->
     <div class="fp-search-wrap">
       <div class="fp-search-bar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:rgba(255,255,255,.5);flex-shrink:0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--text-muted);flex-shrink:0">
           <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
         </svg>
         <input
@@ -73,9 +73,9 @@
               <div class="fp-result-info">
                 <span class="fp-result-name">{{ u.displayName }}</span>
                 <div class="fp-result-chips">
-                  @if (u.country) { <span class="fp-chip">🌍 {{ u.country }}</span> }
-                  @if (u.favoriteAnime) { <span class="fp-chip">⭐ {{ u.favoriteAnime }}</span> }
-                  @if (u.favoriteGenre) { <span class="fp-chip">🎭 {{ u.favoriteGenre }}</span> }
+                  @if (u.country) { <span class="fp-chip">◉ {{ u.country }}</span> }
+                  @if (u.favoriteAnime) { <span class="fp-chip">★ {{ u.favoriteAnime }}</span> }
+                  @if (u.favoriteGenre) { <span class="fp-chip">◈ {{ u.favoriteGenre }}</span> }
                 </div>
               </div>
               @if (status(u.uid) === 'friends') {
@@ -175,21 +175,21 @@
               <div class="fp-card-info">
                 @if (f.country) {
                   <div class="fp-info-row">
-                    <span class="fp-info-icon">🌍</span>
+                    <span class="fp-info-icon">◉</span>
                     <span class="fp-info-label">País</span>
                     <span class="fp-info-value">{{ f.country }}</span>
                   </div>
                 }
                 @if (f.favoriteAnime) {
                   <div class="fp-info-row">
-                    <span class="fp-info-icon">⭐</span>
+                    <span class="fp-info-icon">★</span>
                     <span class="fp-info-label">Anime favorito</span>
                     <span class="fp-info-value">{{ f.favoriteAnime }}</span>
                   </div>
                 }
                 @if (f.favoriteGenre) {
                   <div class="fp-info-row">
-                    <span class="fp-info-icon">🎭</span>
+                    <span class="fp-info-icon">◈</span>
                     <span class="fp-info-label">Género</span>
                     <span class="fp-info-value">{{ f.favoriteGenre }}</span>
                   </div>
@@ -327,9 +327,9 @@
               <p class="fp-full-bio">{{ f.bio }}</p>
             }
             <div class="fp-full-tags">
-              @if (f.country)       { <span class="fp-full-tag">🌍 {{ f.country }}</span> }
-              @if (f.favoriteAnime) { <span class="fp-full-tag">⭐ {{ f.favoriteAnime }}</span> }
-              @if (f.favoriteGenre) { <span class="fp-full-tag">🎭 {{ f.favoriteGenre }}</span> }
+              @if (f.country)       { <span class="fp-full-tag">◉ {{ f.country }}</span> }
+              @if (f.favoriteAnime) { <span class="fp-full-tag">★ {{ f.favoriteAnime }}</span> }
+              @if (f.favoriteGenre) { <span class="fp-full-tag">◈ {{ f.favoriteGenre }}</span> }
             </div>
           </div>
 
@@ -382,7 +382,7 @@
         @if (!friendDataLoading() && profileTab() === 'favoritos') {
           @if (friendFavs().length === 0) {
             <div class="fp-empty" style="padding:2.5rem 1rem">
-              <div class="fp-empty-icon"><span style="font-size:1.8rem">🎌</span></div>
+              <div class="fp-empty-icon"><span style="font-size:1.8rem"></span></div>
               <p class="fp-empty-title">Sin favoritos todavía</p>
             </div>
           } @else {
@@ -392,7 +392,7 @@
                   <img [src]="a.images?.jpg?.image_url" [alt]="a.title" class="fp-full-anime-img" />
                   <div class="fp-full-anime-info">
                     <span class="fp-full-anime-title">{{ a.title }}</span>
-                    @if (a.score) { <span class="fp-full-anime-score">⭐ {{ a.score }}</span> }
+                    @if (a.score) { <span class="fp-full-anime-score">★ {{ a.score }}</span> }
                   </div>
                 </a>
               }
@@ -404,7 +404,7 @@
         @if (!friendDataLoading() && profileTab() === 'vistos') {
           @if (friendWatched().length === 0) {
             <div class="fp-empty" style="padding:2.5rem 1rem">
-              <div class="fp-empty-icon"><span style="font-size:1.8rem">👁</span></div>
+              <div class="fp-empty-icon"><span style="font-size:1.8rem">◎</span></div>
               <p class="fp-empty-title">Aún no ha visto nada</p>
             </div>
           } @else {
@@ -414,9 +414,9 @@
                   <img [src]="a.images?.jpg?.image_url" [alt]="a.title" class="fp-full-list-thumb" />
                   <div class="fp-full-list-info">
                     <span class="fp-full-list-title">{{ a.title }}</span>
-                    @if (a.score) { <span class="fp-full-list-meta">⭐ {{ a.score }}</span> }
+                    @if (a.score) { <span class="fp-full-list-meta">★ {{ a.score }}</span> }
                   </div>
-                  <span class="fp-full-badge watched">✅ Visto</span>
+                  <span class="fp-full-badge watched">✓ Visto</span>
                 </a>
               }
             </div>
@@ -427,7 +427,7 @@
         @if (!friendDataLoading() && profileTab() === 'viendo') {
           @if (friendWatching().length === 0) {
             <div class="fp-empty" style="padding:2.5rem 1rem">
-              <div class="fp-empty-icon"><span style="font-size:1.8rem">▶️</span></div>
+              <div class="fp-empty-icon"><span style="font-size:1.8rem">▶</span></div>
               <p class="fp-empty-title">Nada en curso</p>
             </div>
           } @else {
@@ -447,7 +447,7 @@
                       </div>
                     }
                   </div>
-                  <span class="fp-full-badge watching">▶️ Viendo</span>
+                  <span class="fp-full-badge watching">▶ Viendo</span>
                 </a>
               }
             </div>
@@ -458,7 +458,7 @@
         @if (!friendDataLoading() && profileTab() === 'pendientes') {
           @if (friendPending().length === 0) {
             <div class="fp-empty" style="padding:2.5rem 1rem">
-              <div class="fp-empty-icon"><span style="font-size:1.8rem">🕐</span></div>
+              <div class="fp-empty-icon"><span style="font-size:1.8rem">○</span></div>
               <p class="fp-empty-title">Sin pendientes</p>
             </div>
           } @else {
@@ -468,9 +468,9 @@
                   <img [src]="a.images?.jpg?.image_url" [alt]="a.title" class="fp-full-list-thumb" />
                   <div class="fp-full-list-info">
                     <span class="fp-full-list-title">{{ a.title }}</span>
-                    @if (a.score) { <span class="fp-full-list-meta">⭐ {{ a.score }}</span> }
+                    @if (a.score) { <span class="fp-full-list-meta">★ {{ a.score }}</span> }
                   </div>
-                  <span class="fp-full-badge pending">🕐 Pendiente</span>
+                  <span class="fp-full-badge pending">○ Pendiente</span>
                 </a>
               }
             </div>
@@ -483,3 +483,4 @@
 }
 
 }
+   

@@ -2,7 +2,7 @@
   <app-skeleton-detail />
 } @else if (error()) {
   <div class="error-state">
-    <span class="error-icon">⚠️</span>
+    <span class="error-icon">⚠</span>
     <p>{{ error() }}</p>
     <button class="btn btn-outline" (click)="goBack()">← Volver</button>
   </div>
@@ -26,7 +26,7 @@
       }
 
       <div class="badges">
-        @if (anime()!.score)    { <span class="badge">⭐ {{ anime()!.score }}</span> }
+        @if (anime()!.score)    { <span class="badge">★ {{ anime()!.score }}</span> }
         @if (anime()!.rank)     { <span class="badge"># {{ anime()!.rank }} ranking</span> }
         @if (anime()!.episodes) { <span class="badge">{{ anime()!.episodes }} eps</span> }
         @if (anime()!.status)   { <span class="badge">{{ anime()!.status }}</span> }
@@ -130,7 +130,7 @@
     @if (activeTab() === 'personajes') {
       @if (characters().length === 0) {
         <div class="tab-empty">
-          <span>👤</span><p>No hay personajes disponibles</p>
+          <span>○</span><p>No hay personajes disponibles</p>
         </div>
       } @else {
         <div class="characters-grid">
@@ -197,7 +197,7 @@
 
       @if (reviewsService.animeReviews().length === 0 && !showReviewForm()) {
         <div class="tab-empty">
-          <span>💬</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36" style="color:var(--text-muted)"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           <p>Sin reseñas aún. ¡Sé el primero!</p>
         </div>
       }
@@ -229,18 +229,18 @@
     @if (activeTab() === 'amigos') {
       @if (!auth.user()) {
         <div class="tab-empty">
-          <span>👥</span>
+          <span>◎</span>
           <p>Inicia sesión para ver qué opinan tus amigos</p>
         </div>
       } @else if (friendsService.friends().length === 0) {
         <div class="tab-empty">
-          <span>👥</span>
+          <span>◎</span>
           <p>Aún no tienes amigos añadidos</p>
           <small>Ve a tu cuenta → pestaña Amigos para buscar y añadir amigos</small>
         </div>
       } @else if (friendReviews().length === 0) {
         <div class="tab-empty">
-          <span>💬</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36" style="color:var(--text-muted)"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <p>Ninguno de tus amigos ha reseñado este anime todavía</p>
         </div>
       } @else {
@@ -264,7 +264,7 @@
                 </div>
               </div>
               <p class="review-text">{{ r.text }}</p>
-              <span class="friend-badge">👥 Amigo</span>
+              <span class="friend-badge">◎ Amigo</span>
             </div>
           }
         </div>

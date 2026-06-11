@@ -25,8 +25,8 @@ const CARD_GRADIENTS = [
   ['#ff6b6b', '#ee0979'],
   ['#11998e', '#38ef7d'],
   ['#f7971e', '#ffd200'],
-  ['#c471ed', '#12c2e9'],
-  ['#f64f59', '#c471ed'],
+  ['#0EA5E9', '#06b6d4'],
+  ['#f97316', '#ef4444'],
   ['#4facfe', '#00f2fe'],
 ];
 
@@ -161,7 +161,7 @@ export class FriendsPage {
   status(uid: string) { return this.friendsService.friendshipStatus(uid); }
 
   avatarFallback(name?: string | null) {
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name?.trim() || 'U')}&background=7c4dff&color=fff&bold=true&size=128`;
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name?.trim() || 'U')}&background=FF2D55&color=fff&bold=true&size=128`;
   }
 
   onAvatarError(event: Event, name?: string | null) {

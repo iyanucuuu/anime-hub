@@ -7,7 +7,7 @@
   </div>
   <div class="card-info">
     <p class="card-title" [title]="anime.title_english || anime.title">{{ anime.title_english || anime.title }}</p>
-    <p class="card-score">⭐ {{ anime.score ?? 'N/A' }}</p>
+    <p class="card-score">★ {{ anime.score ?? 'N/A' }}</p>
     @if (isWatching && totalEps) {
       <div class="card-progress-bar">
         <div class="card-progress-fill" [style.width.%]="progressPct"></div>

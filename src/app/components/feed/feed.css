@@ -27,6 +27,18 @@
   text-align: center;
 }
 
+.feed-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  font-size: 1.8rem;
+  color: var(--text-muted);
+}
+
 .feed-empty span    { font-size: 3rem; }
 .feed-empty p       { font-size: 1.05rem; margin: 0; }
 .feed-empty small   { font-size: .87rem; opacity: .75; }

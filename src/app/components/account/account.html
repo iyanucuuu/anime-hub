@@ -219,7 +219,7 @@
                 <img [src]="anime.images.jpg.image_url" [alt]="anime.title" class="watched-thumb" />
                 <div class="watched-info">
                   <span class="watched-title">{{ anime.title }}</span>
-                  <span class="watched-score">⭐ {{ anime.score }}</span>
+                  <span class="watched-score">★ {{ anime.score }}</span>
                 </div>
                 <span class="watched-date">{{ formatDate(anime.watchedAt) }}</span>
                 <span class="watched-badge">Visto</span>
@@ -265,7 +265,7 @@
                 <img [src]="anime.images.jpg.image_url" [alt]="anime.title" class="watched-thumb" />
                 <div class="watched-info">
                   <span class="watched-title">{{ anime.title }}</span>
-                  <span class="watched-score">⭐ {{ anime.score }}</span>
+                  <span class="watched-score">★ {{ anime.score }}</span>
                 </div>
                 <span class="watched-date">{{ formatDate(anime.addedAt) }}</span>
                 <span class="pending-badge">Pendiente</span>
@@ -472,7 +472,13 @@
     <div class="orb orb1"></div>
     <div class="orb orb2"></div>
     <div class="bubble">
-      <span class="bubble-icon">⛩</span>
+      <span class="bubble-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="52" height="52">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </span>
       <h2>Únete a la comunidad</h2>
       <p>Inicia sesión para acceder a tus favoritos, ver recomendaciones de otros usuarios y participar en la comunidad.</p>
       <ul class="features">
