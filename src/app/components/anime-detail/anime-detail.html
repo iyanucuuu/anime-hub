@@ -64,7 +64,26 @@
       @if (watchingService.isWatching(anime()!.mal_id)) {
         <div class="progress-tracker">
           <span class="progress-label">
-            Episodio {{ watchingProgress }}{{ totalEpisodes ? ' / ' + totalEpisodes : '' }}
+            Episodio
+            @if (editingEpisode()) {
+              <input
+                class="episode-input"
+                type="number"
+                min="0"
+                [max]="totalEpisodes ?? 99999"
+                [value]="episodeInputValue()"
+                (input)="episodeInputValue.set(+$any($event.target).value)"
+                (blur)="commitEpisode(episodeInputValue())"
+                (keydown.enter)="commitEpisode(episodeInputValue())"
+                (keydown.escape)="editingEpisode.set(false)"
+                #epInput
+              />
+            } @else {
+              <button class="episode-badge" (click)="startEditEpisode()" title="Haz clic para editar">
+                {{ watchingProgress }}
+              </button>
+            }
+            {{ totalEpisodes ? '/ ' + totalEpisodes : '' }}
           </span>
           <div class="progress-controls">
             <button class="btn btn-outline btn-step" (click)="adjustProgress(-1)" [disabled]="watchingProgress <= 0">−</button>

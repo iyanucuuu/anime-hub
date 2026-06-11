@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, inject, OnDestroy, effect } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ActivityService, ActivityEvent, ACTIVITY_LABELS } from '../../services/activity';
 import { FriendsService } from '../../services/friends';
@@ -11,7 +11,7 @@ import { SeoService } from '../../services/seo';
   templateUrl: './feed.html',
   styleUrl: './feed.css',
 })
-export class FeedPage implements OnInit, OnDestroy {
+export class FeedPage implements OnDestroy {
   private activityService = inject(ActivityService);
   private friendsService  = inject(FriendsService);
   auth = inject(AuthService);
@@ -22,29 +22,28 @@ export class FeedPage implements OnInit, OnDestroy {
 
   private unsub?: () => void;
 
-  ngOnInit() {
+  constructor() {
     this.seo.set({ title: 'Feed de amigos', description: 'Qué están viendo y reseñando tus amigos.' });
-    this.startFeed();
-  }
 
-  private startFeed() {
-    const uid = this.auth.user()?.uid;
-    const friendIds = [...this.friendsService.friendIds()];
-    // Include own UID so user always sees their own activity even without friends
-    const ids = uid ? [uid, ...friendIds] : friendIds;
+    // Re-arranca el feed cada vez que cambia el usuario o sus amigos
+    effect(() => {
+      const uid = this.auth.user()?.uid;
+      const friendIds = [...this.friendsService.friendIds()];
+      const ids = uid ? [uid, ...friendIds] : friendIds;
 
-    this.unsub?.();
-    this.loading.set(true);
+      this.unsub?.();
+      this.loading.set(true);
 
-    if (ids.length === 0) {
-      this.events.set([]);
-      this.loading.set(false);
-      return;
-    }
+      if (ids.length === 0) {
+        this.events.set([]);
+        this.loading.set(false);
+        return;
+      }
 
-    this.unsub = this.activityService.watchFriendsFeed(ids, evs => {
-      this.events.set(evs);
-      this.loading.set(false);
+      this.unsub = this.activityService.watchFriendsFeed(ids, evs => {
+        this.events.set(evs);
+        this.loading.set(false);
+      });
     });
   }
 

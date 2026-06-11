@@ -143,6 +143,24 @@ export class AnimeDetail implements OnInit, OnDestroy {
     this.watchingService.setProgress(this.animePayload(), this.watchingProgress + delta);
   }
 
+  // ─── Input directo de episodio ────────────────────────────────────────────
+  editingEpisode = signal(false);
+  episodeInputValue = signal(0);
+
+  startEditEpisode() {
+    this.episodeInputValue.set(this.watchingProgress);
+    this.editingEpisode.set(true);
+  }
+
+  commitEpisode(raw: string | number) {
+    const a = this.anime();
+    if (!a) { this.editingEpisode.set(false); return; }
+    const value = Math.max(0, Math.floor(Number(raw) || 0));
+    const capped = this.totalEpisodes ? Math.min(value, this.totalEpisodes) : value;
+    this.watchingService.setProgress(this.animePayload(), capped);
+    this.editingEpisode.set(false);
+  }
+
   // ─── Reseñas ──────────────────────────────────────────────────────────────
 
   openReviewForm() {

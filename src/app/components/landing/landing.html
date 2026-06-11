@@ -1,39 +1,120 @@
 <div class="landing">
-  <div class="orbs">
-    <div class="orb orb1"></div>
-    <div class="orb orb2"></div>
-    <div class="orb orb3"></div>
-  </div>
 
-  <div class="particles">
-    @for (p of particles; track $index) {
-      <span class="particle" [style]="p"></span>
-    }
-  </div>
-
-  <div class="content">
-    <div class="logo-wrap">
-      <span class="torii">
-        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="56" height="56">
-          <polygon points="24,4 44,24 24,44 4,24" stroke="currentColor" stroke-width="2.5" fill="none"/>
-          <polygon points="24,12 36,24 24,36 12,24" stroke="currentColor" stroke-width="2" fill="none" opacity="0.5"/>
-        </svg>
-      </span>
+  <!-- ══ HERO ═══════════════════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="orbs">
+      <div class="orb orb1"></div>
+      <div class="orb orb2"></div>
+      <div class="orb orb3"></div>
     </div>
-    <h1 class="title">
-      <span class="word">Anime</span><span class="word accent">Hub</span>
-    </h1>
-    <p class="subtitle">Descubre, guarda y comparte tu mundo del anime</p>
+    <div class="particles">
+      @for (p of particles; track $index) {
+        <span class="particle" [style]="p"></span>
+      }
+    </div>
+    <div class="kanji-bg" aria-hidden="true">
+      <span class="kj kj1">発見</span>
+      <span class="kj kj2">友</span>
+      <span class="kj kj3">物語</span>
+      <span class="kj kj4">評価</span>
+      <span class="kj kj5">整理</span>
+    </div>
 
-    <button class="btn-enter" (click)="enter()">
-      <span class="btn-text">Entrar</span>
-      <span class="btn-arrow">→</span>
-    </button>
-  </div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Beta · 2025
+      </div>
+      <h1 class="hero-title">
+        <span class="word">Anime</span><span class="word accent">Hub</span>
+      </h1>
+      <p class="hero-tagline">
+        <span class="tl-line"></span>
+        Descubre · Organiza · Comparte
+        <span class="tl-line"></span>
+      </p>
+      <div class="hero-ctas">
+        <a class="btn-primary" routerLink="/home">
+          <span>Explorar ahora</span>
+          <span class="btn-arrow">→</span>
+        </a>
+        <button class="btn-ghost" (click)="scrollTo('features')">¿Qué es esto? ↓</button>
+      </div>
+    </div>
 
-  <div class="floating-tags">
-    @for (t of styledTags; track t.label) {
-      <span class="tag" [style]="t.style">{{ t.label }}</span>
-    }
-  </div>
+    <div class="scroll-hint">
+      <div class="scroll-mouse">
+        <div class="scroll-wheel"></div>
+      </div>
+      <span class="scroll-label">scroll</span>
+    </div>
+  </section>
+
+  <!-- ══ FEATURES ═══════════════════════════════════════════════════ -->
+  <section class="features" id="features">
+    <div class="section-header">
+      <div class="section-eyebrow reveal">
+        <span class="ey-line"></span>
+        <span>¿Qué es AnimeHub?</span>
+        <span class="ey-line"></span>
+      </div>
+      <h2 class="section-bigtext reveal">
+        Todo lo que <em>necesitas.</em><br>En un solo lugar.
+      </h2>
+    </div>
+
+    <div class="feat-grid">
+      @for (f of features; track f.num) {
+        <article class="feat-card reveal" [attr.data-delay]="f.delay">
+          <div class="feat-top">
+            <span class="feat-num">{{ f.num }}</span>
+            <span class="feat-jp">{{ f.jp }}</span>
+          </div>
+          <h3 class="feat-name">{{ f.name }}</h3>
+          <p class="feat-desc">{{ f.desc }}</p>
+          <div class="feat-line" [style.--c]="f.color"></div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <!-- ══ HOW IT WORKS ════════════════════════════════════════════════ -->
+  <section class="steps-section">
+    <div class="steps-header">
+      <div class="section-eyebrow reveal">
+        <span class="ey-line"></span>
+        <span>Empezar es fácil</span>
+        <span class="ey-line"></span>
+      </div>
+      <h2 class="section-bigtext reveal">Tan fácil como<br><em>1 · 2 · 3</em></h2>
+    </div>
+
+    <div class="steps-track">
+      @for (s of steps; track s.n) {
+        <div class="step reveal" [attr.data-delay]="s.delay">
+          <div class="step-n">{{ s.n }}</div>
+          <h4 class="step-title">{{ s.title }}</h4>
+          <p class="step-desc">{{ s.desc }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ══ CTA FINAL ═══════════════════════════════════════════════════ -->
+  <section class="cta-section">
+    <div class="cta-bg-text" aria-hidden="true">ANIME<br>HUB</div>
+    <div class="cta-inner reveal">
+      <span class="cta-pre">
+        <span class="cta-pre-line"></span>
+        ¿Listo para empezar?
+        <span class="cta-pre-line"></span>
+      </span>
+      <h2 class="cta-headline">Tu próximo anime<br>favorito <em>te espera.</em></h2>
+      <a class="btn-primary btn-xl" routerLink="/home">
+        <span>Empezar gratis</span>
+        <span class="btn-arrow">→</span>
+      </a>
+    </div>
+  </section>
+
 </div>

@@ -5,6 +5,7 @@ import { DatePipe } from '@angular/common';
 import { FriendsService, UserProfile } from '../../services/friends';
 import { AuthService } from '../../services/auth';
 import { AnimeUserPayload } from '../../models/anime.models';
+import { WatchingAnime } from '../../services/watching';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
 
@@ -59,7 +60,7 @@ export class FriendsPage {
   friendDataLoading = signal(false);
   friendFavs     = signal<AnimeUserPayload[]>([]);
   friendWatched  = signal<AnimeUserPayload[]>([]);
-  friendWatching = signal<AnimeUserPayload[]>([]);
+  friendWatching = signal<WatchingAnime[]>([]);
   friendPending  = signal<AnimeUserPayload[]>([]);
 
   async openProfile(f: ExtendedUserProfile) {
@@ -77,10 +78,10 @@ export class FriendsPage {
         getDocs(collection(db, 'users', f.uid, 'watching')),
         getDocs(collection(db, 'users', f.uid, 'watchlater')),
       ]);
-      this.friendFavs.set(favs.docs.map(d => d.data()));
-      this.friendWatched.set(watched.docs.map(d => d.data()));
-      this.friendWatching.set(watching.docs.map(d => d.data()));
-      this.friendPending.set(pending.docs.map(d => d.data()));
+      this.friendFavs.set(favs.docs.map(d => d.data() as AnimeUserPayload));
+      this.friendWatched.set(watched.docs.map(d => d.data() as AnimeUserPayload));
+      this.friendWatching.set(watching.docs.map(d => d.data() as WatchingAnime));
+      this.friendPending.set(pending.docs.map(d => d.data() as AnimeUserPayload));
     } catch (e) {
       console.warn('[FriendsPage] No se pudo cargar el perfil del amigo:', e);
     }
