@@ -287,6 +287,89 @@ a { color: inherit; text-decoration: none; }
   max-width: 400px;
 }
 
+/* ─── Auth gate (páginas privadas sin sesión) ──────────────────────── */
+
+.auth-gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 62vh;
+  padding: 3rem 1rem;
+}
+
+.auth-gate__card {
+  text-align: center;
+  max-width: 460px;
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3rem 2rem 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-gate__card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 50% at 50% 0%,
+    color-mix(in srgb, var(--accent) 10%, transparent),
+    transparent 65%);
+  pointer-events: none;
+}
+
+.auth-gate__icon {
+  font-size: 3.5rem;
+  display: block;
+  margin-bottom: 1rem;
+  line-height: 1;
+  position: relative;
+}
+
+.auth-gate__card h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.1rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  margin: 0 0 0.75rem;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent3) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+}
+
+.auth-gate__card p {
+  color: var(--text-muted);
+  font-size: 0.97rem;
+  line-height: 1.6;
+  max-width: 340px;
+  margin: 0 auto 1.75rem;
+  position: relative;
+}
+
+.auth-gate__features {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1.75rem;
+  position: relative;
+}
+
+.auth-gate__features span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.65rem;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--accent);
+}
+
 /* ─── Register CTA Banner ──────────────────────────────────────────── */
 
 .register-cta {
